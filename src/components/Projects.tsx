@@ -13,6 +13,20 @@ const Projects = () => {
       githubUrl: "https://github.com/mk23rd/Risk_Integrated_Crowdfunding_and_Investment_Platform"
     },
     {
+      title: "Synth",
+      description: "A modern, responsive e-commerce platform for premium leather products featuring jackets, bags, and belts. Built with HTML, CSS, JavaScript, and PHP with MySQL database integration.",
+      tags: ["JavaScript", "PHP", "MySQL"],
+      image: "/Synth.png",
+      githubUrl: "https://github.com/mk23rd/Synth"
+    },
+    {
+      title: "Fewes",
+      description: "Fewes is a modern meal-kit experience for authentic Ethiopian cuisine, covering menu browsing, weekly planning, and subscription management.",
+      tags: ["JavaScript", "HTML", "CSS", "jQuery"],
+      image: "/Fewes.png",
+      githubUrl: "https://github.com/mk23rd/Fewes"
+    },
+    {
       title: "OpenAI_Translator",
       description: "Python-based translation assistant that integrates OpenAI APIs to translate across multiple languages with contextual accuracy.",
       tags: ["Python", "OpenAI", "CLI"],
