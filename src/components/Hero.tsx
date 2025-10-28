@@ -71,11 +71,23 @@ const Hero = () => {
                 View Projects
               </a>
               <a
+                href="/michael-wagaye-resume.pdf"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  "px-6 py-3 rounded-full bg-muted text-foreground hover:bg-muted/80 transition-all",
+                  "transform hover:-translate-y-0.5",
+                  "animate-fade-in opacity-0 reveal-delay-4"
+                )}
+              >
+                View CV
+              </a>
+              <a
                 href="#contact"
                 className={cn(
                   "px-6 py-3 rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-all",
                   "transform hover:-translate-y-0.5",
-                  "animate-fade-in opacity-0 reveal-delay-4"
+                  "animate-fade-in opacity-0 reveal-delay-5"
                 )}
               >
                 Contact Me
