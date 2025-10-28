@@ -45,16 +45,10 @@ const Hero = () => {
                 )}
               >
                 <p>
-                  Hi, I’m Michael — a recent graduate passionate about solving real-world problems through code and cloud technologies.
+                  Hi, I’m Michael — a cloud-minded frontend engineer who pairs polished UI with reliable architecture. I’ve delivered projects like a risk-aware crowdfunding platform, Synth’s ecommerce experience, and an AI-driven translator.
                 </p>
                 <p>
-                  Over the past four years, I’ve built a solid foundation in software development, data structures, and systems design. I’m AWS Cloud Practitioner certified and currently working toward the Solutions Architect certification to deepen my cloud architecture skills.
-                </p>
-                <p>
-                  I thrive on curiosity, determination, and a strong "get things done" mindset. Whether I’m learning a new framework, debugging complex code, or collaborating with teammates, I stay focused on delivering quality results.
-                </p>
-                <p>
-                  I’m especially interested in opportunities that let me grow as a software developer—internships, junior roles, or collaborative tech projects. If you’re looking for someone motivated and ready to tackle new challenges, let’s connect!
+                  I hold both the AWS Cloud Practitioner and Solutions Architect Associate certifications, and I ship rigorously tested interfaces with React, TypeScript, Tailwind, and CI/CD pipelines backed by scalable AWS services. I’m looking for early-career roles where I can keep growing in cloud-first product teams.
                 </p>
               </div>
             </div>
