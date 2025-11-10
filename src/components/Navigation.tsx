@@ -4,6 +4,12 @@ import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ThemeToggle from "./ThemeToggle";
 
+/**
+ * Top navigation bar for the portfolio site.
+ * - Handles responsive behavior (desktop links vs mobile drawer)
+ * - Exposes a theme toggle that is always accessible
+ * - Adds a small elevation when the user scrolls past the hero
+ */
 const Navigation = () => {
   // Track whether the mobile drawer is open for responsive layouts.
   const [isOpen, setIsOpen] = useState(false);

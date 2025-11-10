@@ -3,6 +3,13 @@ import { useState } from "react";
 import { ExternalLink, GithubIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/**
+ * Project card props describe the information shown for each portfolio item.
+ *
+ * Notes:
+ * - `image` and `video` are optional; the component prefers video when provided.
+ * - `index` is used to stagger animation timing in lists.
+ */
 interface ProjectCardProps {
   title: string;
   description: string;

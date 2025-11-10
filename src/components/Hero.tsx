@@ -3,7 +3,15 @@ import { useState } from "react";
 import { ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/**
+ * Hero section – top of the landing page.
+ * Responsibilities:
+ * - Provide a strong introduction and primary CTA anchors
+ * - Carry decorative background elements that do not affect accessibility
+ * - Lazy-load portrait image and gracefully fall back to a placeholder
+ */
 const Hero = () => {
+  // The main portrait is lazy-loaded. If it fails to load we fall back to a small placeholder image.
   const [imageSrc, setImageSrc] = useState("/IMG_2653.jpg");
 
   return (
