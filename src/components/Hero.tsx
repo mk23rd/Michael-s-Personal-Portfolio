@@ -32,7 +32,8 @@ const Hero = () => {
                   "md:text-6xl lg:text-7xl reveal-delay-1"
                 )}
               >
-                Recent <span className="text-gradient">Graduate</span> From Hilcoe School Of Computer Science And Technology
+                Cloud-Focused <span className="text-gradient">Software Developer</span> <br /> 
+                <span className="block text-2xl md:text-3xl lg:text-4xl font-medium text-gradient">Building Scalable Web Experiences</span>
               </h1>
               <br />
             </div>
