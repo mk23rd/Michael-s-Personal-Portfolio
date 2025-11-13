@@ -9,8 +9,7 @@
 [![Vite](https://img.shields.io/badge/Vite-5.4.1-646cff?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4.11-38bdf8?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-[Live Demo](https://mk23rdportfolio.netlify.app/) • [Report Bug](https://github.com/mk23rd/PersonalPortfolio/issues) • [Request Feature](https://github.com/mk23rd/PersonalPortfolio/issues)
-
+[Live Demo](https://mk23rdportfolio.netlify.app/) 
 </div>
 
 ---
@@ -196,8 +195,8 @@ This project is open source and available under the [MIT License](LICENSE).
 
 **Michael** - Software Developer
 
-- GitHub: [@mk23rd](https://github.com/mk23rd)
-- Project Link: [https://github.com/mk23rd/PersonalPortfolio](https://github.com/mk23rd/PersonalPortfolio)
+- GitHub: [Michael Wagaye](https://github.com/mk23rd)
+- Project Link: [Michael's Portfolio](https://github.com/mk23rd/PersonalPortfolio)
 
 
 
