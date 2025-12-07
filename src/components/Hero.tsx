@@ -54,11 +54,8 @@ const Hero = () => {
                 )}
               >
                 <p>
-                  Hi, I’m Michael — a cloud-minded frontend engineer who pairs polished UI with reliable architecture. I’ve delivered projects like a risk-aware crowdfunding platform, Synth’s ecommerce experience, and an AI-driven translator.
-                </p>
-                <p>
-                  I hold both the AWS Cloud Practitioner and Solutions Architect Associate certifications, and I ship rigorously tested interfaces with React, TypeScript, Tailwind, and CI/CD pipelines backed by scalable AWS services. I’m looking for early-career roles where I can keep growing in cloud-first product teams.
-                </p>
+                 Software Developer (Node.js, TypeScript, AWS) with hands-on experience building scalable backend services, REST APIs, and responsive UI/UX. Skilled in OrderManagement Systems (OMS), cloud deployment on AWS (EC2, S3, Lambda), and modern web development. Seeking a junior role where I can contribute to real-world systems and grow in cloud, backend, and frontend engineering.
+                </p> 
               </div>
             </div>
 
