@@ -1,5 +1,4 @@
 import { useState } from "react";
-import emailjs from "@emailjs/browser";
 import { Github, Linkedin, Mail, MapPin, Phone, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import AnimatedSection from "./AnimatedSection";
@@ -26,36 +25,19 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // EmailJS configuration values are provided via Vite env variables.
-    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
-
-    if (!serviceId || !templateId || !publicKey) {
-      toast({
-        title: "Configuration missing",
-        description: "Email service keys are not set. Please contact the site owner.",
-        variant: "destructive"
-      });
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
-      await emailjs.send(
-        serviceId,
-        templateId,
-        {
-          from_name: formData.name,
-          reply_to: formData.email,
-          message: formData.message,
-          // Destination address also lives in the EmailJS template, but duplicating here makes it explicit.
-          to_email: "michaelofthesith@gmail.com"
-        },
-        {
-          publicKey
-        }
-      );
+      const response = await fetch("/", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          "form-name": "contact",
+          ...formData
+        }).toString()
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
 
       toast({
         title: "Message sent!",
@@ -63,14 +45,10 @@ const Contact = () => {
       });
       setFormData({ name: "", email: "", message: "" });
     } catch (error) {
-      console.error("Email send failed", error);
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "EmailJS rejected the request. Check your service/template configuration.";
+      console.error("Form submission failed", error);
       toast({
         title: "Something went wrong",
-        description: errorMessage,
+        description: "Could not send message. Please try again later.",
         variant: "destructive"
       });
     } finally {
@@ -179,7 +157,13 @@ const Contact = () => {
           </div>
           
           <div className="glass-card rounded-2xl p-8 animate-on-scroll">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form 
+              onSubmit={handleSubmit} 
+              className="space-y-6"
+              name="contact"
+              data-netlify="true"
+            >
+              <input type="hidden" name="form-name" value="contact" />
               <div>
                 <label htmlFor="name" className="block text-sm font-medium mb-2">
                   Your Name
