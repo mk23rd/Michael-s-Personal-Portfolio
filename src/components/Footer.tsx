@@ -42,7 +42,7 @@ const Footer = () => {
         
         <div className="border-t border-border/50 mt-8 pt-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="text-sm text-muted-foreground">
-            © {currentYear} Student Portfolio. All rights reserved.
+            © {currentYear} Michael's Portfolio. All rights reserved.
           </div>
           
           <div className="flex flex-wrap gap-6 text-sm">
