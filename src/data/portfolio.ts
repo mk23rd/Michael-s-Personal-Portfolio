@@ -123,8 +123,8 @@ export const projects: Project[] = [
     repo: "Fewes",
     summary: "Meal-kit subscriptions for Ethiopian cooking",
     description:
-      "Weekly menus of authentic Ethiopian dishes, a planner for the week ahead and subscription management, wrapped in a bright interface with Amharic type. jQuery for the interaction layer, plain HTML and CSS underneath.",
-    stack: ["JavaScript", "jQuery", "HTML", "CSS"],
+      "Weekly menus of authentic Ethiopian dishes, a planner for the week ahead and subscription management, wrapped in a bright interface with Amharic type. A React front end talking to a Node.js REST API.",
+    stack: ["React", "Node.js", "REST API", "JavaScript"],
     year: "2024",
     kind: "Web app",
     github: "https://github.com/mk23rd/Fewes",
