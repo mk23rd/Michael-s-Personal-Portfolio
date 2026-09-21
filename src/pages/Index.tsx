@@ -1,47 +1,36 @@
-
-import { useEffect } from "react";
-import Navigation from "@/components/Navigation";
-import Hero from "@/components/Hero";
-import Projects from "@/components/Projects";
-import Skills from "@/components/Skills";
-import Education from "@/components/Education";
+import About from "@/components/About";
+import Automation from "@/components/Automation";
 import Contact from "@/components/Contact";
+import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
+import Hero from "@/components/Hero";
+import Navigation from "@/components/Navigation";
+import Projects from "@/components/Projects";
+import Services from "@/components/Services";
+import StackStrip from "@/components/StackStrip";
+import Timeline from "@/components/Timeline";
+import { useReveal } from "@/hooks/use-reveal";
 
 const Index = () => {
-  useEffect(() => {
-    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("in-view");
-        }
-      });
-    };
-
-    const observer = new IntersectionObserver(handleIntersection, {
-      threshold: 0.1,
-      rootMargin: "0px 0px -100px 0px"
-    });
-
-    document.querySelectorAll(".animate-on-scroll").forEach((element) => {
-      observer.observe(element);
-    });
-
-    return () => {
-      observer.disconnect();
-    };
-  }, []);
+  // Runs after every section has mounted, so all [data-reveal] elements are observed.
+  useReveal();
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-hidden">
+    <>
       <Navigation />
-      <Hero />
-      <Projects />
-      <Skills />
-      <Education />
-      <Contact />
+      <main id="main">
+        <Hero />
+        <StackStrip />
+        <Projects />
+        <Automation />
+        <Services />
+        <Timeline />
+        <About />
+        <Faq />
+        <Contact />
+      </main>
       <Footer />
-    </div>
+    </>
   );
 };
 

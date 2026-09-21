@@ -32,7 +32,7 @@ interface ThemeProviderProps {
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const [theme, setThemeState] = useState<Theme>(getPreferredTheme);
 
-  // Persist the selected theme and sync it with the <html> element and color-scheme media query.
+  // Sync the chosen theme with the <html> element and the color-scheme media query.
   useEffect(() => {
     if (typeof window === "undefined") {
       return;
@@ -42,7 +42,6 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     root.classList.remove(theme === "dark" ? "light" : "dark");
     root.classList.add(theme);
     root.style.colorScheme = theme;
-    window.localStorage.setItem("theme", theme);
   }, [theme]);
 
   // React to OS-level theme changes when the user has not manually chosen a preference.
@@ -64,12 +63,18 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     return () => mediaQuery.removeEventListener("change", handler);
   }, []);
 
+  // Only an explicit choice is persisted, so the OS preference keeps applying until the user picks one.
   const setTheme = (value: Theme) => {
+    window.localStorage.setItem("theme", value);
     setThemeState(value);
   };
 
   const toggleTheme = () => {
-    setThemeState((prev) => (prev === "light" ? "dark" : "light"));
+    setThemeState((prev) => {
+      const next = prev === "light" ? "dark" : "light";
+      window.localStorage.setItem("theme", next);
+      return next;
+    });
   };
 
   // Memoize the context value so consumers only re-render when the theme actually changes.

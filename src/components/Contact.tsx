@@ -1,245 +1,218 @@
-import { useState } from "react";
-import { Github, Linkedin, Mail, MapPin, Phone, Send } from "lucide-react";
+import { useState, type FormEvent } from "react";
+import { ArrowUpRight, Check, Loader2, Mail, MapPin, Phone, Send, type LucideIcon } from "lucide-react";
+import { profile, socials } from "@/data/portfolio";
 import { cn } from "@/lib/utils";
-import AnimatedSection from "./AnimatedSection";
-import { useToast } from "@/hooks/use-toast";
 
-// Contact form handles EmailJS submission plus exposes quick links to preferred channels.
+type Status = { kind: "idle" } | { kind: "sending" } | { kind: "sent" } | { kind: "error"; message: string };
+
+type Channel = { term: string; value: string; href?: string; icon: LucideIcon };
+
 const Contact = () => {
-  // Controlled form state keeps the UI in sync with the form values.
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: ""
-  });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+  const [status, setStatus] = useState<Status>({ kind: "idle" });
 
-  // Normalize the logic for updating any input field.
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+  // Netlify Forms picks up the POST as long as the field names match the static form in index.html.
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const body = new URLSearchParams();
+    new FormData(form).forEach((value, key) => body.append(key, String(value)));
+    setStatus({ kind: "sending" });
 
     try {
       const response = await fetch("/", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          "form-name": "contact",
-          ...formData
-        }).toString()
+        body: body.toString()
       });
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-
-      toast({
-        title: "Message sent!",
-        description: "Thank you for your message. I'll get back to you soon.",
-      });
-      setFormData({ name: "", email: "", message: "" });
+      if (!response.ok) throw new Error(`Form endpoint responded with ${response.status}`);
+      form.reset();
+      setStatus({ kind: "sent" });
     } catch (error) {
       console.error("Form submission failed", error);
-      toast({
-        title: "Something went wrong",
-        description: "Could not send message. Please try again later.",
-        variant: "destructive"
+      setStatus({
+        kind: "error",
+        message: `The form didn't go through. Email me directly at ${profile.email} instead.`
       });
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
+  const channels: Channel[] = [
+    { term: "Email", value: profile.email, href: `mailto:${profile.email}`, icon: Mail },
+    { term: "Phone", value: profile.phone, href: profile.phoneHref, icon: Phone },
+    { term: "Location", value: `${profile.city}, ${profile.country}`, icon: MapPin }
+  ];
+
   return (
-    <AnimatedSection id="contact" className="py-24 bg-secondary/50">
-      <div className="section-container">
-        <div className="text-center mb-16">
-          <span className="text-sm font-medium px-3 py-1 rounded-full bg-secondary text-foreground/80 inline-block mb-4 dark:bg-secondary/60">
-            Get In Touch
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            Let's <span className="text-gradient">Connect</span>
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Have a project in mind or just want to say hello? Feel free to reach out.
+    <section id="contact" className="section">
+      <div className="wrap">
+        <div>
+          <p className="label" data-reveal>
+            Contact
           </p>
+          <h2 className="display h2 mt-4 max-w-[18ch]" data-reveal="mask">
+            Have a project or a role in mind? Let's talk.
+          </h2>
         </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          <div className="space-y-8 animate-on-scroll">
-            <h3 className="text-2xl font-bold">Contact Information</h3>
-            <p className="text-muted-foreground">
-              Fill out the form or contact me directly using the information below.
+
+        <div className="mt-12 grid gap-12 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-5" data-reveal>
+            <p className="lede">
+              I read everything that comes in and reply within a day. If a form feels like too much, any of
+              these work just as well.
             </p>
-            
-            {/* Quick access links for visitors who prefer direct channels. */}
-            <div className="space-y-6">
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-full bg-primary/10 text-primary shrink-0">
-                  <Mail size={20} />
-                </div>
-                <div>
-                  <h4 className="font-medium">Email</h4>
-                  <a 
-                    href="mailto:michaelofthesith@gmail.com" 
-                    className="text-muted-foreground hover:text-primary transition-colors"
+
+            <dl className="mt-8 border-t border-border">
+              {channels.map((channel) => {
+                const Icon = channel.icon;
+                return (
+                  <div
+                    key={channel.term}
+                    className="grid gap-1 border-b border-border py-4 sm:grid-cols-[7rem_1fr] sm:gap-6"
                   >
-                    michaelofthesith@gmail.com
-                  </a>
-                </div>
+                    <dt className="label inline-flex items-center gap-2">
+                      <Icon size={14} aria-hidden="true" />
+                      {channel.term}
+                    </dt>
+                    <dd>
+                      {channel.href ? (
+                        <a href={channel.href} className="link-line">
+                          {channel.value}
+                        </a>
+                      ) : (
+                        channel.value
+                      )}
+                    </dd>
+                  </div>
+                );
+              })}
+            </dl>
+
+            <ul className="mt-6 flex flex-wrap gap-x-6 gap-y-2" aria-label="Elsewhere">
+              {socials.map((social) => {
+                const Icon = social.icon;
+                return (
+                  <li key={social.label}>
+                    <a
+                      href={social.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="link-line group inline-flex items-center gap-1.5"
+                    >
+                      <Icon size={16} aria-hidden="true" />
+                      {social.label}
+                      <ArrowUpRight
+                        size={14}
+                        aria-hidden="true"
+                        className="transition-transform duration-300 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                      />
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+
+          <form
+            name="contact"
+            method="POST"
+            data-netlify="true"
+            data-netlify-honeypot="bot-field"
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-5 lg:col-span-7"
+            data-reveal
+          >
+            <input type="hidden" name="form-name" value="contact" />
+            <p className="hidden">
+              <label>
+                Don't fill this out if you're human: <input name="bot-field" />
+              </label>
+            </p>
+
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div className="flex flex-col gap-2">
+                <label htmlFor="contact-name" className="text-sm font-medium">
+                  Name
+                </label>
+                <input
+                  id="contact-name"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  className="field"
+                  placeholder="Your name"
+                />
               </div>
-              
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-full bg-primary/10 text-primary shrink-0">
-                  <Phone size={20} />
-                </div>
-                <div>
-                  <h4 className="font-medium">Phone</h4>
-                  <a 
-                    href="tel:+251985817122" 
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    +251985817122
-                  </a>
-                </div>
-              </div>
-              
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-full bg-primary/10 text-primary shrink-0">
-                  <MapPin size={20} />
-                </div>
-                <div>
-                  <h4 className="font-medium">Location</h4>
-                  <p className="text-muted-foreground">
-                    Addis Ababa,Ethiopia
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-full bg-primary/10 text-primary shrink-0">
-                  <Github size={20} />
-                </div>
-                <div>
-                  <h4 className="font-medium">GitHub</h4>
-                  <a
-                    href="https://github.com/mk23rd"
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    github.com/mk23rd
-                  </a>
-                </div>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="p-3 rounded-full bg-primary/10 text-primary shrink-0">
-                  <Linkedin size={20} />
-                </div>
-                <div>
-                  <h4 className="font-medium">LinkedIn</h4>
-                  <a
-                    href="https://www.linkedin.com/in/michael-wagaye-3362272b0/"
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    www.linkedin.com/in/michael-wagaye-3362272b0/
-                  </a>
-                </div>
+              <div className="flex flex-col gap-2">
+                <label htmlFor="contact-email" className="text-sm font-medium">
+                  Email
+                </label>
+                <input
+                  id="contact-email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className="field"
+                  placeholder="you@company.com"
+                />
               </div>
             </div>
-          </div>
-          
-          <div className="glass-card rounded-2xl p-8 animate-on-scroll">
-            <form 
-              onSubmit={handleSubmit} 
-              className="space-y-6"
-              name="contact"
-              data-netlify="true"
-            >
-              <input type="hidden" name="form-name" value="contact" />
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium mb-2">
-                  Your Name
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 rounded-lg border border-border bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                  placeholder="John Doe"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2">
-                  Your Email
-                </label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 rounded-lg border border-border bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                  placeholder="john@example.com"
-                />
-              </div>
-              
-              <div>
-                <label htmlFor="message" className="block text-sm font-medium mb-2">
-                  Your Message
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  value={formData.message}
-                  onChange={handleChange}
-                  required
-                  rows={5}
-                  className="w-full px-4 py-3 rounded-lg border border-border bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all resize-none"
-                  placeholder="Hello, I'd like to talk about..."
-                ></textarea>
-              </div>
-              
+            <div className="flex flex-col gap-2">
+              <label htmlFor="contact-message" className="text-sm font-medium">
+                Message
+              </label>
+              <textarea
+                id="contact-message"
+                name="message"
+                required
+                rows={6}
+                className="field resize-y"
+                placeholder="A few lines about the role or the project"
+              />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-4">
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className={cn(
-                  "w-full py-3 px-6 rounded-lg bg-primary text-primary-foreground font-medium",
-                  "flex items-center justify-center gap-2",
-                  "transform hover:translate-y-[-2px] hover:shadow-lg transition-all",
-                  "focus:outline-none focus:ring-2 focus:ring-primary/20",
-                  isSubmitting && "opacity-80 cursor-not-allowed"
-                )}
+                className="pill pill-solid group"
+                disabled={status.kind === "sending"}
+                aria-busy={status.kind === "sending"}
               >
-                {isSubmitting ? (
+                {status.kind === "sending" ? (
                   <>
-                    <div className="animate-spin h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full"></div>
-                    <span>Sending...</span>
+                    <Loader2 size={16} aria-hidden="true" className="animate-spin" />
+                    Sending…
+                  </>
+                ) : status.kind === "sent" ? (
+                  <>
+                    <Check size={16} aria-hidden="true" />
+                    Sent
                   </>
                 ) : (
                   <>
-                    <Send size={18} />
-                    <span>Send Message</span>
+                    Send message
+                    <Send
+                      size={16}
+                      aria-hidden="true"
+                      className="transition-transform duration-300 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                    />
                   </>
                 )}
               </button>
-            </form>
-          </div>
+              <p
+                role="status"
+                aria-live="polite"
+                className={cn("text-sm", status.kind === "error" ? "text-destructive" : "text-muted-foreground")}
+              >
+                {status.kind === "sent" && "Thanks, it's on its way. I'll reply within a day."}
+                {status.kind === "error" && status.message}
+              </p>
+            </div>
+          </form>
         </div>
       </div>
-    </AnimatedSection>
+    </section>
   );
 };
 

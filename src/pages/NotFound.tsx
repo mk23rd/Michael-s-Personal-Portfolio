@@ -1,26 +1,37 @@
-import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
+import { profile } from "@/data/portfolio";
 
 const NotFound = () => {
   const location = useLocation();
 
   useEffect(() => {
-    console.error(
-      "404 Error: User attempted to access non-existent route:",
-      location.pathname
-    );
+    console.warn(`404: no route matches ${location.pathname}`);
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
-          Return to Home
-        </a>
+    <main className="flex min-h-screen flex-col">
+      <header className="wrap flex items-center justify-between py-6">
+        <Link to="/" className="font-medium tracking-tight">
+          {profile.name}
+        </Link>
+        <ThemeToggle />
+      </header>
+      <div className="wrap flex flex-1 flex-col items-start justify-center pb-24">
+        <p className="label">404</p>
+        <h1 className="display h1 mt-4 max-w-[14ch]">There's nothing at this address.</h1>
+        <p className="lede mt-6 max-w-[38rem]">
+          <code className="rounded-md bg-secondary px-1.5 py-0.5 text-base">{location.pathname}</code> doesn't
+          exist on this site. Everything lives on the front page.
+        </p>
+        <Link to="/" className="pill pill-solid mt-9">
+          <ArrowLeft size={16} aria-hidden="true" />
+          Back to the front page
+        </Link>
       </div>
-    </div>
+    </main>
   );
 };
 

@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx"
+import type { CSSProperties } from "react"
 import { twMerge } from "tailwind-merge"
 
 /**
@@ -13,4 +14,9 @@ import { twMerge } from "tailwind-merge"
  */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
+}
+
+/** Type-safe way to pass CSS custom properties through React's `style` prop. */
+export function vars(values: Record<`--${string}`, string | number>, base?: CSSProperties): CSSProperties {
+  return { ...base, ...values } as CSSProperties
 }
