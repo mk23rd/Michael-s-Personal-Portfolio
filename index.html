@@ -3,18 +3,51 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Michael Wagaye's Portfolio</title>
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>Michael Wagaye — AI Automation Developer & Cloud Engineer</title>
     <meta
       name="description"
-      content="Explore Michael Wagaye's personal portfolio showcasing projects, skills, and experience."
+      content="Michael Wagaye is an AI automation developer and AWS cloud engineer at MMCY in Addis Ababa, working with Python, PowerShell, Power Automate, AWS and Microsoft 365. Automation work, projects, experience and how to get in touch."
     />
     <meta name="author" content="Michael Wagaye" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f0f0f" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Michael Wagaye — AI Automation Developer & Cloud Engineer" />
+    <meta
+      property="og:description"
+      content="Automation that runs unattended, AWS and Microsoft 365 infrastructure, and the interfaces on top of them. Portfolio of Michael Wagaye, Addis Ababa."
+    />
     <meta property="og:image" content="/og-image.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Michael Wagaye — AI Automation Developer & Cloud Engineer" />
+    <meta name="twitter:image" content="/og-image.png" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap"
+    />
+
+    <!-- Apply the saved or system theme before first paint so dark mode never flashes white. -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("theme");
+          var dark =
+            stored === "dark" ||
+            (stored !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+          document.documentElement.classList.add(dark ? "dark" : "light");
+          document.documentElement.style.colorScheme = dark ? "dark" : "light";
+        } catch (e) {}
+      })();
+    </script>
   </head>
 
   <body>
-    <!-- Hidden form for Netlify detection -->
+    <!-- Static copy of the contact form so Netlify registers its fields at deploy time. -->
     <form name="contact" netlify netlify-honeypot="bot-field" hidden>
       <input type="text" name="name" />
       <input type="email" name="email" />
