@@ -10,7 +10,9 @@ const HEADLINE = ["From", "the", "cloud", "to", "the", "last", "pixel."];
 const BREAK_AFTER = 2;
 
 const Hero = () => (
-  <section id="top" className="relative overflow-hidden pt-[calc(var(--header-height)+3.5rem)] md:pt-[calc(var(--header-height)+5rem)]">
+  // `overflow-clip`, not `overflow-hidden`: the fanned deck cards hang past the fold on purpose, and a
+  // hidden-overflow box is still a scroll container, so focusing/scrolling a card would shift the hero.
+  <section id="top" className="relative overflow-clip pt-[calc(var(--header-height)+3.5rem)] md:pt-[calc(var(--header-height)+5rem)]">
     <div className="wrap flex flex-col items-center text-center">
       <p className="rise flex items-center gap-2.5 text-sm text-muted-foreground" style={vars({ "--d": "0ms" })}>
         <span className="dot" aria-hidden="true" />

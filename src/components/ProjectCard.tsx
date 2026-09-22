@@ -1,4 +1,4 @@
-import { ArrowUpRight, Github } from "lucide-react";
+import { ArrowUpRight, Github, Globe } from "lucide-react";
 import type { Project } from "@/data/portfolio";
 import { cn, vars } from "@/lib/utils";
 import ProjectArtwork from "./ProjectArtwork";
@@ -42,21 +42,40 @@ const ProjectCard = ({ project, featured = false, index }: ProjectCardProps) => 
               </li>
             ))}
           </ul>
-          <a
-            href={project.github}
-            target="_blank"
-            rel="noreferrer"
-            className="link-line group inline-flex items-center gap-1.5 text-sm font-medium"
-            aria-label={`${project.title} source code on GitHub`}
-          >
-            <Github size={16} aria-hidden="true" />
-            Source
-            <ArrowUpRight
-              size={16}
-              aria-hidden="true"
-              className="transition-transform duration-300 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-            />
-          </a>
+          <div className="flex flex-wrap items-center gap-5">
+            {project.live && (
+              <a
+                href={project.live}
+                target="_blank"
+                rel="noreferrer"
+                className="link-line group inline-flex items-center gap-1.5 text-sm font-medium"
+                aria-label={`${project.title} live site`}
+              >
+                <Globe size={16} aria-hidden="true" />
+                Live site
+                <ArrowUpRight
+                  size={16}
+                  aria-hidden="true"
+                  className="transition-transform duration-300 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                />
+              </a>
+            )}
+            <a
+              href={project.github}
+              target="_blank"
+              rel="noreferrer"
+              className="link-line group inline-flex items-center gap-1.5 text-sm font-medium"
+              aria-label={`${project.title} source code on GitHub`}
+            >
+              <Github size={16} aria-hidden="true" />
+              Source
+              <ArrowUpRight
+                size={16}
+                aria-hidden="true"
+                className="transition-transform duration-300 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              />
+            </a>
+          </div>
         </div>
       </div>
     </article>

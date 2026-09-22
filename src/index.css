@@ -402,10 +402,6 @@
     will-change: transform;
   }
 
-  .spin-slow {
-    animation: spin 14s linear infinite;
-  }
-
   @keyframes spin {
     to {
       transform: rotate(1turn);
@@ -642,13 +638,15 @@
     color: var(--card-ink);
   }
 
+  /* Explicit widths, not left/right pairs: an absolutely positioned <img> with
+     width:auto takes its intrinsic width and ignores `right`, which blew the
+     screenshots up to 1600px inside a ~600px well. */
   .work-media img,
   .work-media .work-panel {
     position: absolute;
     left: 8%;
-    right: -4%;
     top: 16%;
-    width: auto;
+    width: 96%;
     height: auto;
     max-width: none;
     aspect-ratio: 16 / 10;
@@ -693,7 +691,7 @@
   /* Artwork on a white ground (rather than a screenshot) keeps its own proportions and sits on the floor of the well. */
   .work-media img.art {
     left: 8%;
-    right: 8%;
+    width: 84%;
     top: auto;
     bottom: 0;
     aspect-ratio: auto;
@@ -711,12 +709,12 @@
     .work-media.wide img:not(.art),
     .work-media.wide .work-panel {
       left: 20%;
-      right: 6%;
+      width: 74%;
       top: 14%;
     }
     .work-media.wide img.art {
       left: 14%;
-      right: 14%;
+      width: 72%;
     }
   }
 

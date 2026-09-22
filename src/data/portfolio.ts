@@ -74,6 +74,8 @@ export type Project = {
   year: string;
   kind: string;
   github: string;
+  /** Deployed URL, when the project is live somewhere. */
+  live?: string;
   brand: string;
   ink: string;
   image?: string;
@@ -97,9 +99,9 @@ export const projects: Project[] = [
     github: "https://github.com/mk23rd/Risk_Integrated_Crowdfunding_and_Investment_Platform",
     brand: "#2b63f5",
     ink: "#ffffff",
-    image: "/lawata.png",
-    imageAlt: "Lawata landing page with the headline 'Create or crowdfund' drawn as candlestick bars",
-    fit: "art"
+    image: "/lawata.jpg",
+    imageAlt: "Lawata homepage: the headline 'Create or crowdfund' drawn as candlestick chart bars",
+    live: "https://lawata.vercel.app/"
   },
   {
     id: "synth",

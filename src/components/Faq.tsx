@@ -33,8 +33,10 @@ const Faq = () => {
                       data-state={open ? "open" : "closed"}
                       onClick={() => setOpenIndex(open ? null : index)}
                     >
-                      {item.q}
-                      <Plus size={22} aria-hidden="true" />
+                      <span className="faq-q">{item.q}</span>
+                      <span className="faq-icon" aria-hidden="true">
+                        <Plus size={18} />
+                      </span>
                     </button>
                   </h3>
                   <div
