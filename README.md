@@ -1,209 +1,96 @@
-<div align="center">
+# Michael Wagaye — Portfolio
 
-# 🌟 Personal Portfolio Website
+Personal site for Michael Wagaye, AI Automation Developer & Cloud Engineer at MMCY, Addis Ababa.
 
-### A Modern, Interactive Portfolio Built with React & TypeScript
+**Live:** https://mk23rdportfolio.netlify.app/
 
-[![React](https://img.shields.io/badge/React-18.3.1-61dafb?style=for-the-badge&logo=react&logoColor=white)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.5.3-3178c6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-5.4.1-646cff?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![TailwindCSS](https://img.shields.io/badge/Tailwind-3.4.11-38bdf8?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+A single-page Vite + React + TypeScript site with a hand-rolled design system: white canvas, black ink, a tight grotesque display face, a fanned deck of project cards, a scrolling stack ticker, editorial two-column sections and a wall-to-wall wordmark in the footer. Light and dark themes, full keyboard support, and every animation respects `prefers-reduced-motion`.
 
-[Live Demo](https://mk23rdportfolio.netlify.app/) 
-</div>
+The conceit is that the site runs like one of the automations it describes: a short boot log on first visit, a live status readout in the hero, a wired pipeline board you can trace by hovering, a `Ctrl`/`⌘ K` command palette with a few shell-style commands (`whoami`, `uptime`, `ls`, `cat cv`, `sudo hire`), and a quiet custom cursor for mouse users.
 
----
+## Stack
 
+| Layer | Choice |
+| --- | --- |
+| Build | Vite 5, `@vitejs/plugin-react-swc` |
+| UI | React 18, TypeScript 5, React Router 6 (`/` and a 404 route) |
+| Styling | Tailwind CSS 3 for layout utilities; all components, tokens and motion live in `src/index.css` |
+| Icons | `lucide-react` |
+| Type | Bricolage Grotesque (display) + Instrument Sans (body), loaded from Google Fonts |
+| Hosting | Netlify — static build, SPA redirect in `public/_redirects`, contact form handled by Netlify Forms |
 
+Runtime dependencies are deliberately minimal: `react`, `react-dom`, `react-router-dom`, `lucide-react`, `clsx`, `tailwind-merge`. No animation, component or form libraries.
 
-## 🎯 About the Project
-
-Welcome to my personal portfolio website! This is a dynamic, single-page application that showcases my journey as a Computer Science student at Hilcoe School of Computer Science and Technology. The portfolio features an elegant, modern design with smooth animations and interactive elements that create an engaging user experience.
-
-The website serves as a comprehensive platform to:
-- 🎓 Display my educational background and professional experience
-- 💼 Showcase my technical skills and expertise
-- 📂 Present my projects and work
-- 📬 Provide easy ways to get in touch
-
----
-
-## ✨ Key Features
-
-### 🎨 Design & User Experience
-- **Fully Responsive Design** - Seamlessly adapts to all screen sizes (desktop, tablet, mobile)
-- **Dark Mode Support** - Built-in theme system with elegant dark/light mode toggle
-- **Smooth Animations** - Custom-crafted animations using Tailwind CSS and Framer Motion principles
-- **Glass Morphism UI** - Modern glassmorphic design elements for a sophisticated look
-- **Interactive Components** - Engaging hover effects and scroll animations
-
-### 🛠️ Technical Features
-- **Type-Safe Development** - Built with TypeScript for robust, maintainable code
-- **Modern React Patterns** - Utilizing React hooks and functional components
-- **Optimized Performance** - Lightning-fast load times with Vite's build optimization
-- **Component Library** - Powered by shadcn/ui and Radix UI for accessible components
-- **Form Validation** - React Hook Form with Zod schema validation
-- **Routing** - Client-side routing with React Router DOM
-- **Email Delivery** - Contact form sends messages via EmailJS directly to your inbox
-
-### 📱 Sections
-- **Hero Section** - Eye-catching introduction with animated text
-- **Projects** - Showcase of work and accomplishments
-- **Skills** - Technical proficiency visualization with progress bars
-- **Education** - Timeline of academic and professional journey
-- **Contact** - Easy-to-use contact form with validation
-
----
-
-## 🚀 Tech Stack
-
-### Frontend Framework
-- **React 18.3.1** - Modern UI library for building user interfaces
-- **TypeScript 5.5.3** - Typed superset of JavaScript for enhanced developer experience
-
-### Build Tools & Dev Environment
-- **Vite 5.4.1** - Next-generation frontend build tool
-- **ESLint** - Code linting for maintaining code quality
-- **PostCSS & Autoprefixer** - CSS processing and vendor prefixing
-
-### Styling
-- **TailwindCSS 3.4.11** - Utility-first CSS framework
-- **tailwindcss-animate** - Animation utilities for Tailwind
-- **class-variance-authority** - For creating variant-based components
-- **clsx & tailwind-merge** - Conditional className utilities
-
-### UI Components
-- **shadcn/ui** - Re-usable component library built on Radix UI
-- **Radix UI** - Unstyled, accessible component primitives
-- **Lucide React** - Beautiful & consistent icon set
-
-### Forms & Validation
-- **React Hook Form 7.53.0** - Performant form library
-- **Zod 3.23.8** - TypeScript-first schema validation
-
-### State Management & Data Fetching
-- **TanStack Query 5.56.2** - Powerful data synchronization library
-- **React Router DOM 6.26.2** - Declarative routing for React
-
-### Additional Libraries
-- **sonner** - Toast notifications
-- **next-themes** - Theme management
-- **date-fns** - Date utility library
-- **embla-carousel-react** - Lightweight carousel library
-
----
-
-## 🎬 Getting Started
-
-Follow these instructions to get a copy of the project up and running on your local machine for development purposes.
-
-### Prerequisites
-
-Before you begin, ensure you have the following installed on your system:
-
-- **Node.js** (v18.0.0 or higher)
-  ```bash
-  # Check your Node.js version
-  node --version
-  ```
-
-- **npm** or **bun** (package manager)
-  ```bash
-  # Check your npm version
-  npm --version
-  ```
-
-
-## 📁 Project Structure
+## Project structure
 
 ```
-PersonalPortfolio/
-├── public/                    # Static assets
-│   └── placeholder.svg
-├── src/
-│   ├── components/           # React components
-│   │   ├── ui/              # shadcn/ui components
-│   │   ├── AnimatedSection.tsx
-│   │   ├── Contact.tsx
-│   │   ├── Education.tsx
-│   │   ├── EducationItem.tsx
-│   │   ├── Footer.tsx
-│   │   ├── Hero.tsx
-│   │   ├── Navigation.tsx
-│   │   ├── ProjectCard.tsx
-│   │   ├── Projects.tsx
-│   │   ├── SkillCard.tsx
-│   │   └── Skills.tsx
-│   ├── lib/                 # Utility functions
-│   ├── pages/              # Page components
-│   │   ├── Index.tsx
-│   │   └── NotFound.tsx
-│   ├── App.tsx             # Main application component
-│   └── main.tsx            # Application entry point
-├── .gitignore
-├── components.json         # shadcn/ui configuration
-├── eslint.config.js       # ESLint configuration
-├── index.html             # HTML template
-├── package.json           # Project dependencies
-├── postcss.config.js      # PostCSS configuration
-├── tailwind.config.ts     # Tailwind CSS configuration
-├── tsconfig.json          # TypeScript configuration
-└── vite.config.ts         # Vite configuration
+index.html                  Meta tags, font preloads, anti-flash theme script, static Netlify form mirror
+public/                     favicon, portrait, project artwork, og-image.png, résumé PDF, _redirects
+src/
+  data/portfolio.ts         Single source of truth for all content (profile, nav, projects, stack,
+                            services, automation work, timeline, FAQ, socials)
+  index.css                 Design tokens (light/dark), typography scale, component classes, motion system
+  components/
+    Navigation.tsx          Floating pill nav, sliding active indicator, palette trigger, burger → full-screen menu
+    Hero.tsx                Word-by-word headline reveal, magnetic CTAs, live status readout
+    StatusLine.tsx          Cycling status line with a left-to-right decode sweep
+    Boot.tsx                First-visit boot log; any click, key or scroll skips it
+    CommandPalette.tsx      Ctrl/⌘ K dialog: jump to sections and projects, actions, shell-style commands
+    Cursor.tsx              Dot + lagging ring cursor for fine pointers; labels via data-cursor="…"
+    CardDeck.tsx            Fanned, pointer-tilting project deck (stacks on small screens)
+    StackStrip.tsx          Infinite marquee of tools
+    Projects.tsx / ProjectCard.tsx / ProjectArtwork.tsx
+    Automation.tsx          Automation & AI-enabled engineering work at MMCY
+    Flow.tsx                Live pipeline board: sources → runner → destinations, hover/tap to trace a route
+    Services.tsx            What I do, with icon wells
+    Timeline.tsx            Experience / education / certifications with filter chips
+    About.tsx               Portrait, rotating badge, facts list with live local time
+    Faq.tsx                 Accessible accordion (button + region, aria-expanded, data-state)
+    Contact.tsx             Netlify-backed form with inline validation and status messages
+    Footer.tsx              Giant wordmark, socials, CV link, back-to-top
+    SectionHeading.tsx, Magnetic.tsx, RotatingBadge.tsx, ThemeToggle.tsx
+  hooks/
+    use-reveal.ts           IntersectionObserver that adds .is-visible to every [data-reveal]
+    use-active-section.ts   Tracks which section is in view for the nav indicator
+    use-local-time.ts       Ticking clock for a given IANA time zone
+    use-reduced-motion.ts   Live prefers-reduced-motion media query
+  lib/
+    boot.ts                 Boot state: runs once per tab session, never on deep links or reduced motion
+    palette.ts              Tiny event bus so any component can open the palette
+  context/theme-context.tsx Light/dark theme, persisted to localStorage, syncs with the OS
+  pages/Index.tsx, NotFound.tsx
 ```
 
----
+## Editing content
 
-## 📜 Available Scripts
+Everything shown on the page comes from `src/data/portfolio.ts`. Update the profile, add a project, reorder the nav, change a timeline entry or rewrite a FAQ answer there — no component changes needed. Replace `public/michael-wagaye-resume.pdf` to update the downloadable CV.
 
-In the project directory, you can run:
+Design tokens (colours, radii, type scale, spacing, motion durations) live at the top of `src/index.css` as CSS custom properties, with a `.dark` override block.
 
-### `npm run dev`
-Runs the app in development mode at [http://localhost:8080](http://localhost:8080)
-- Hot Module Replacement (HMR) enabled
-- Fast refresh for instant feedback
+## Scripts
 
-### `npm run build`
-Builds the app for production to the `dist` folder
-- Optimizes the build for best performance
-- Minifies code and assets
-- Bundles are correctly hashed for cache busting
+```sh
+npm install
+npm run dev        # Vite dev server on http://localhost:8080
+npm run typecheck  # tsc --noEmit against tsconfig.app.json
+npm run lint       # ESLint (typescript-eslint, react-hooks, react-refresh)
+npm run build      # Production build to dist/
+npm run preview    # Serve dist/ locally
+```
 
-### `npm run build:dev`
-Creates a development build with source maps for debugging
+## Contact form
 
-### `npm run lint`
-Runs ESLint to check code quality
-- Identifies potential errors
-- Enforces code style consistency
+The form posts to Netlify Forms (`name="contact"`, hidden `form-name` field, `bot-field` honeypot). `index.html` contains a static mirror of the form so Netlify's build-time scanner registers it. Submissions appear under **Forms** in the Netlify dashboard; enable email notifications there if you want them forwarded.
 
-### `npm run preview`
-Locally preview the production build
-- Serves the production build on a local server
-- Useful for final testing before deployment
+## Accessibility & motion
 
----
+- Semantic landmarks, a skip link, one `h1`, labelled controls and `aria-current` on the active nav item.
+- The mobile menu and the command palette trap focus, close on Escape, mark the page behind them `inert` and return focus to their trigger. The palette is a `combobox` + `listbox` with `aria-activedescendant`.
+- The FAQ accordion, timeline filters, theme toggle and pipeline board are fully keyboard-operable (nodes are buttons; focusing one traces its route, pressing it pins it).
+- The boot log and the cursor are `aria-hidden`; the hero status line exposes only the plain availability text to assistive tech.
+- Scroll reveals, the marquee, the deck tilt, magnetic buttons, the rotating badge, the boot log, the status decode, the pipeline packets and the custom cursor are all disabled under `prefers-reduced-motion`. Touch devices keep the native cursor.
+- Colours meet WCAG AA contrast in both themes.
 
+## License
 
-
-## 📝 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
----
-
-## 📧 Contact
-
-**Michael** - Software Developer
-
-- GitHub: [Michael Wagaye](https://github.com/mk23rd)
-- Project Link: [Michael's Portfolio](https://github.com/mk23rd/PersonalPortfolio)
-
-
-
-<div align="center">
-
-### ⭐ Star this repository if you find it helpful!
-
-
-
-</div>
+MIT — see [LICENSE](LICENSE).

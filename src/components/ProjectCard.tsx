@@ -1,133 +1,85 @@
+import { ArrowUpRight, Github, Globe } from "lucide-react";
+import type { Project } from "@/data/portfolio";
+import { cn, vars } from "@/lib/utils";
+import ProjectArtwork from "./ProjectArtwork";
 
-import { useState } from "react";
-import { ExternalLink, GithubIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-/**
- * Project card props describe the information shown for each portfolio item.
- *
- * Notes:
- * - `image` and `video` are optional; the component prefers video when provided.
- * - `index` is used to stagger animation timing in lists.
- */
-interface ProjectCardProps {
-  title: string;
-  description: string;
-  image?: string;
-  video?: string;
-  tags: string[];
-  liveUrl?: string;
-  githubUrl?: string;
+type ProjectCardProps = {
+  project: Project;
+  featured?: boolean;
   index: number;
-}
-
-// Presentational card used by the Projects grid with hover animation + optional links.
-const ProjectCard = ({
-  title,
-  description,
-  image,
-  video,
-  tags,
-  liveUrl,
-  githubUrl,
-  index
-}: ProjectCardProps) => {
-  const [isMediaLoaded, setIsMediaLoaded] = useState(false);
-  const displayImage = image ?? "/placeholder.svg";
-  const hasVideo = Boolean(video);
-
-  return (
-    <div 
-      className={cn(
-        "group relative rounded-2xl overflow-hidden animated-card glass-card",
-        "animate-on-scroll transform transition-all duration-500",
-        index % 2 === 0 ? "translate-y-4" : "translate-y-0"
-      )}
-      style={{ transitionDelay: `${index * 100}ms` }}
-    >
-      <div className="aspect-video overflow-hidden relative">
-        <div className={cn(
-          "absolute inset-0 bg-gray-100 animate-pulse z-0",
-          isMediaLoaded ? "hidden" : "block"
-        )} />
-        {hasVideo ? (
-          <video
-            key={video}
-            className={cn(
-              "relative z-10 h-full w-full object-cover transition-all duration-500 group-hover:scale-105",
-              isMediaLoaded ? "opacity-100" : "opacity-0"
-            )}
-            poster={displayImage}
-            muted
-            loop
-            playsInline
-            autoPlay
-            controls
-            preload="metadata"
-            onLoadedData={() => setIsMediaLoaded(true)}
-          >
-            <source src={video} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-        ) : (
-          <img
-            src={displayImage}
-            alt={title}
-            loading="lazy"
-            className={cn(
-              "relative z-10 h-full w-full object-cover transition-all duration-500 group-hover:scale-105",
-              isMediaLoaded ? "opacity-100" : "opacity-0"
-            )}
-            onLoad={() => setIsMediaLoaded(true)}
-          />
-        )}
-      </div>
-      
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-      
-      <div className="relative p-6">
-        <div className="flex flex-wrap gap-2 mb-4">
-          {tags.map((tag) => (
-            <span 
-              key={tag} 
-              className="text-xs font-medium px-2 py-1 rounded-full bg-secondary text-secondary-foreground"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-  <h3 className="text-xl font-bold mb-2 break-words text-foreground">{title}</h3>
-        <p className="text-muted-foreground text-sm mb-4">{description}</p>
-        
-        <div className="flex items-center gap-4 pt-2">
-          {liveUrl && (
-            <a 
-              href={liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors"
-            >
-              <ExternalLink size={16} />
-              <span>Live Preview</span>
-            </a>
-          )}
-          
-          {githubUrl && (
-            <a 
-              href={githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-sm font-medium text-foreground hover:text-primary transition-colors"
-            >
-              <GithubIcon size={16} />
-              <span>Source Code</span>
-            </a>
-          )}
-        </div>
-      </div>
-    </div>
-  );
 };
+
+const ProjectCard = ({ project, featured = false, index }: ProjectCardProps) => (
+  <div
+    className={cn("scroll-mt-28", featured && "lg:col-span-2")}
+    id={project.id}
+    data-reveal
+    style={vars({ "--reveal-delay": `${(index % 2) * 90}ms` })}
+  >
+    <article className="work h-full">
+      <div
+        className={cn("work-media", featured && "wide")}
+        style={vars({ "--card-brand": project.brand, "--card-ink": project.ink })}
+      >
+        <div className="absolute left-6 top-5 flex items-center gap-3 text-sm sm:left-8 sm:top-7">
+          <span className="opacity-90">{project.kind}</span>
+          <span className="opacity-60">{project.year}</span>
+        </div>
+        <ProjectArtwork project={project} variant="card" />
+      </div>
+
+      <div className="flex flex-col gap-5 p-6 sm:p-8">
+        <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+          <h3 className="display h3">{project.title}</h3>
+          <p className="text-muted-foreground">{project.summary}</p>
+        </div>
+        <p className={cn("text-muted-foreground", featured && "lg:max-w-[60ch]")}>{project.description}</p>
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-4 pt-1">
+          <ul className="flex flex-wrap gap-2" aria-label="Built with">
+            {project.stack.map((tool) => (
+              <li key={tool} className="tag">
+                {tool}
+              </li>
+            ))}
+          </ul>
+          <div className="flex flex-wrap items-center gap-5">
+            {project.live && (
+              <a
+                href={project.live}
+                target="_blank"
+                rel="noreferrer"
+                className="link-line group inline-flex items-center gap-1.5 text-sm font-medium"
+                aria-label={`${project.title} live site`}
+              >
+                <Globe size={16} aria-hidden="true" />
+                Live site
+                <ArrowUpRight
+                  size={16}
+                  aria-hidden="true"
+                  className="transition-transform duration-300 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                />
+              </a>
+            )}
+            <a
+              href={project.github}
+              target="_blank"
+              rel="noreferrer"
+              className="link-line group inline-flex items-center gap-1.5 text-sm font-medium"
+              aria-label={`${project.title} source code on GitHub`}
+            >
+              <Github size={16} aria-hidden="true" />
+              Source
+              <ArrowUpRight
+                size={16}
+                aria-hidden="true"
+                className="transition-transform duration-300 ease-out group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+              />
+            </a>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+);
 
 export default ProjectCard;
