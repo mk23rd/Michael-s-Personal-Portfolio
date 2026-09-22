@@ -1,6 +1,9 @@
 import About from "@/components/About";
 import Automation from "@/components/Automation";
+import Boot from "@/components/Boot";
+import CommandPalette from "@/components/CommandPalette";
 import Contact from "@/components/Contact";
+import Cursor from "@/components/Cursor";
 import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
@@ -30,6 +33,9 @@ const Index = () => {
         <Contact />
       </main>
       <Footer />
+      <CommandPalette />
+      <Cursor />
+      <Boot />
     </>
   );
 };

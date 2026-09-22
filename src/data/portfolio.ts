@@ -74,6 +74,8 @@ export type Project = {
   year: string;
   kind: string;
   github: string;
+  /** Deployed URL, when the project is live somewhere. */
+  live?: string;
   brand: string;
   ink: string;
   image?: string;
@@ -97,9 +99,9 @@ export const projects: Project[] = [
     github: "https://github.com/mk23rd/Risk_Integrated_Crowdfunding_and_Investment_Platform",
     brand: "#2b63f5",
     ink: "#ffffff",
-    image: "/lawata.png",
-    imageAlt: "Lawata landing page with the headline 'Create or crowdfund' drawn as candlestick bars",
-    fit: "art"
+    image: "/lawata.jpg",
+    imageAlt: "Lawata homepage: the headline 'Create or crowdfund' drawn as candlestick chart bars",
+    live: "https://lawata.vercel.app/"
   },
   {
     id: "synth",
@@ -300,6 +302,108 @@ export const automationMore = [
   "Server patch-compliance monitoring",
   "HikCentral biometric and IoT device monitoring"
 ];
+
+export type PipelineNode = {
+  id: string;
+  label: string;
+  sub: string;
+  note: string;
+  /** For sources: the outputs their data ends up in. */
+  to?: string[];
+};
+
+/** The systems the automation reads from, the tooling in the middle, and where results land. */
+export const pipeline = {
+  sources: [
+    {
+      id: "endpoints",
+      label: "Endpoints",
+      sub: "Graph · Wazuh agents",
+      note: "Every endpoint and installed package is inventoried and reconciled, then published as SharePoint reports and Power BI views.",
+      to: ["sharepoint", "powerbi"]
+    },
+    {
+      id: "zabbix",
+      label: "Zabbix",
+      sub: "WAN · websites · infrastructure",
+      note: "Latency, packet loss and availability triggers are normalised, routed to Teams and folded into incident timelines.",
+      to: ["teams", "incidents"]
+    },
+    {
+      id: "wazuh",
+      label: "Wazuh",
+      sub: "vulnerability scans",
+      note: "Scheduled scans, including offline agents, become severity-ranked reports and feed the risk review.",
+      to: ["sharepoint", "risk"]
+    },
+    {
+      id: "graylog",
+      label: "Graylog",
+      sub: "log volume · compliance",
+      note: "Monthly log KPIs, device coverage and noisiest-device reporting, generated instead of assembled by hand.",
+      to: ["sharepoint", "powerbi"]
+    },
+    {
+      id: "hikcentral",
+      label: "HikCentral",
+      sub: "configuration · devices",
+      note: "Unattended configuration backups with certificate-based auth, plus biometric and IoT device health in Teams.",
+      to: ["sharepoint", "teams"]
+    },
+    {
+      id: "network",
+      label: "Network devices",
+      sub: "SSH · SCP",
+      note: "Recurring device configuration backups with retention, ready for drift detection and review.",
+      to: ["sharepoint"]
+    },
+    {
+      id: "identity",
+      label: "HR · AD · M365",
+      sub: "identities · access",
+      note: "Cross-system reconciliation surfaces mismatches and stale access for risk-based review.",
+      to: ["risk", "teams"]
+    }
+  ] satisfies PipelineNode[],
+  core: {
+    id: "core",
+    label: "Python · PowerShell · Power Automate",
+    sub: "Microsoft Graph · scheduled · certificate auth",
+    note: "Scripts and flows run on a schedule with least-privilege, certificate-based access. Nothing here needs a person to press a button."
+  } satisfies PipelineNode,
+  outputs: [
+    {
+      id: "teams",
+      label: "Teams",
+      sub: "alerts and recoveries",
+      note: "Alerts, recoveries and device health arrive in the right channel with the noise already filtered out."
+    },
+    {
+      id: "sharepoint",
+      label: "SharePoint",
+      sub: "reports and backups",
+      note: "Inventories, KPIs and configuration backups land in SharePoint with history for comparison."
+    },
+    {
+      id: "powerbi",
+      label: "Power BI",
+      sub: "dashboards",
+      note: "Asset, licence and logging data is modelled for dashboards the team can actually read."
+    },
+    {
+      id: "incidents",
+      label: "Incident timelines",
+      sub: "post-incident summaries",
+      note: "Alert, recovery and duration events are consolidated into timelines suited to AI-written narratives."
+    },
+    {
+      id: "risk",
+      label: "Risk review",
+      sub: "reconciliation findings",
+      note: "Vulnerability and access findings are structured for prioritisation by severity, recurrence and exposure."
+    }
+  ] satisfies PipelineNode[]
+};
 
 export type TimelineKind = "Education" | "Work" | "Certification";
 

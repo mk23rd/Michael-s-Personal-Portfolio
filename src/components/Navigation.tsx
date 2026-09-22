@@ -3,6 +3,7 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { navigation, profile } from "@/data/portfolio";
 import { useActiveSection } from "@/hooks/use-active-section";
 import { cn, vars } from "@/lib/utils";
+import { PaletteTrigger } from "./CommandPalette";
 import ThemeToggle from "./ThemeToggle";
 
 type Indicator = { x: number; width: number; visible: boolean };
@@ -111,6 +112,7 @@ const Navigation = () => {
             </div>
 
             <div className="flex items-center gap-1">
+              <PaletteTrigger />
               <ThemeToggle />
               <a href="#contact" className="pill pill-solid group hidden sm:inline-flex">
                 Start a conversation

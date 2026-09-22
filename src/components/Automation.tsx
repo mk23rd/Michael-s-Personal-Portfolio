@@ -1,5 +1,6 @@
 import { automation, automationMore, profile } from "@/data/portfolio";
 import { vars } from "@/lib/utils";
+import Flow from "./Flow";
 import SectionHeading from "./SectionHeading";
 
 const Automation = () => (
@@ -12,7 +13,14 @@ const Automation = () => (
         intro={`At ${profile.employer} I own automation from requirements and design through implementation, monitoring and production support. A selection of what is running today, built with Python, PowerShell, Power Automate and the Microsoft Graph.`}
       />
 
-      <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+      <Flow />
+
+      <div className="mt-16 flex items-end justify-between gap-6 lg:mt-20" data-reveal>
+        <p className="label">A selection of what is running</p>
+        <p className="label hidden sm:block">{automation.length} of {automation.length + automationMore.length}</p>
+      </div>
+
+      <ul className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3 lg:gap-5">
         {automation.map((item, index) => {
           const Icon = item.icon;
           return (
