@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { projects } from "@/data/portfolio";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
+import { whenBooted } from "@/lib/boot";
 import { cn, vars } from "@/lib/utils";
 import ProjectArtwork from "./ProjectArtwork";
 
@@ -18,8 +19,15 @@ const CardDeck = () => {
   const reducedMotion = useReducedMotion();
 
   useEffect(() => {
-    const id = window.setTimeout(() => setStacked(false), reducedMotion ? 0 : 450);
-    return () => window.clearTimeout(id);
+    let id = 0;
+    // Waits for the boot log (if there is one) so the fan-out follows the headline, not the overlay.
+    const unsubscribe = whenBooted(() => {
+      id = window.setTimeout(() => setStacked(false), reducedMotion ? 0 : 450);
+    });
+    return () => {
+      unsubscribe();
+      window.clearTimeout(id);
+    };
   }, [reducedMotion]);
 
   useEffect(() => {
@@ -75,6 +83,7 @@ const CardDeck = () => {
                   "--card-ink": project.ink
                 })}
                 aria-label={`${project.title}: ${project.summary}`}
+                data-cursor="View"
               >
                 <div className={cn("flex h-full flex-col p-4 sm:p-5", i > 0 && "items-end text-right")}>
                   <p className="text-[0.7rem] opacity-80 sm:text-xs">{project.kind}</p>

@@ -6,6 +6,8 @@ Personal site for Michael Wagaye, AI Automation Developer & Cloud Engineer at MM
 
 A single-page Vite + React + TypeScript site with a hand-rolled design system: white canvas, black ink, a tight grotesque display face, a fanned deck of project cards, a scrolling stack ticker, editorial two-column sections and a wall-to-wall wordmark in the footer. Light and dark themes, full keyboard support, and every animation respects `prefers-reduced-motion`.
 
+The conceit is that the site runs like one of the automations it describes: a short boot log on first visit, a live status readout in the hero, a wired pipeline board you can trace by hovering, a `Ctrl`/`⌘ K` command palette with a few shell-style commands (`whoami`, `uptime`, `ls`, `cat cv`, `sudo hire`), and a quiet custom cursor for mouse users.
+
 ## Stack
 
 | Layer | Choice |
@@ -29,12 +31,17 @@ src/
                             services, automation work, timeline, FAQ, socials)
   index.css                 Design tokens (light/dark), typography scale, component classes, motion system
   components/
-    Navigation.tsx          Floating pill nav, sliding active indicator, burger → full-screen menu
-    Hero.tsx                Word-by-word headline reveal, magnetic CTAs, availability pill
+    Navigation.tsx          Floating pill nav, sliding active indicator, palette trigger, burger → full-screen menu
+    Hero.tsx                Word-by-word headline reveal, magnetic CTAs, live status readout
+    StatusLine.tsx          Cycling status line with a left-to-right decode sweep
+    Boot.tsx                First-visit boot log; any click, key or scroll skips it
+    CommandPalette.tsx      Ctrl/⌘ K dialog: jump to sections and projects, actions, shell-style commands
+    Cursor.tsx              Dot + lagging ring cursor for fine pointers; labels via data-cursor="…"
     CardDeck.tsx            Fanned, pointer-tilting project deck (stacks on small screens)
     StackStrip.tsx          Infinite marquee of tools
     Projects.tsx / ProjectCard.tsx / ProjectArtwork.tsx
     Automation.tsx          Automation & AI-enabled engineering work at MMCY
+    Flow.tsx                Live pipeline board: sources → runner → destinations, hover/tap to trace a route
     Services.tsx            What I do, with icon wells
     Timeline.tsx            Experience / education / certifications with filter chips
     About.tsx               Portrait, rotating badge, facts list with live local time
@@ -47,6 +54,9 @@ src/
     use-active-section.ts   Tracks which section is in view for the nav indicator
     use-local-time.ts       Ticking clock for a given IANA time zone
     use-reduced-motion.ts   Live prefers-reduced-motion media query
+  lib/
+    boot.ts                 Boot state: runs once per tab session, never on deep links or reduced motion
+    palette.ts              Tiny event bus so any component can open the palette
   context/theme-context.tsx Light/dark theme, persisted to localStorage, syncs with the OS
   pages/Index.tsx, NotFound.tsx
 ```
@@ -75,9 +85,10 @@ The form posts to Netlify Forms (`name="contact"`, hidden `form-name` field, `bo
 ## Accessibility & motion
 
 - Semantic landmarks, a skip link, one `h1`, labelled controls and `aria-current` on the active nav item.
-- The mobile menu traps focus, closes on Escape and returns focus to the trigger.
-- The FAQ accordion, timeline filters and theme toggle are fully keyboard-operable.
-- Scroll reveals, the marquee, the deck tilt, magnetic buttons and the rotating badge are all disabled under `prefers-reduced-motion`.
+- The mobile menu and the command palette trap focus, close on Escape, mark the page behind them `inert` and return focus to their trigger. The palette is a `combobox` + `listbox` with `aria-activedescendant`.
+- The FAQ accordion, timeline filters, theme toggle and pipeline board are fully keyboard-operable (nodes are buttons; focusing one traces its route, pressing it pins it).
+- The boot log and the cursor are `aria-hidden`; the hero status line exposes only the plain availability text to assistive tech.
+- Scroll reveals, the marquee, the deck tilt, magnetic buttons, the rotating badge, the boot log, the status decode, the pipeline packets and the custom cursor are all disabled under `prefers-reduced-motion`. Touch devices keep the native cursor.
 - Colours meet WCAG AA contrast in both themes.
 
 ## License
