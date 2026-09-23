@@ -1,11 +1,10 @@
-// Runs before first paint (plain, synchronous script) so a saved or system dark theme never flashes white.
+// Runs before first paint (plain, synchronous script) so a saved dark theme never flashes white.
+// The site opens in light mode for everyone; only a theme the visitor picked with the toggle is remembered.
 // Lives in its own file rather than inline so the Content-Security-Policy can stay at script-src 'self'.
 (function () {
   try {
-    var stored = localStorage.getItem("theme");
-    var dark =
-      stored === "dark" || (stored !== "light" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-    document.documentElement.classList.add(dark ? "dark" : "light");
-    document.documentElement.style.colorScheme = dark ? "dark" : "light";
+    var theme = localStorage.getItem("theme") === "dark" ? "dark" : "light";
+    document.documentElement.classList.add(theme);
+    document.documentElement.style.colorScheme = theme;
   } catch (e) {}
 })();

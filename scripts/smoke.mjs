@@ -366,9 +366,25 @@ async function interactions(browser) {
   await sleep(300);
   const isDark = await page.evaluate(() => document.documentElement.classList.contains("dark"));
   const stored = await page.evaluate(() => localStorage.getItem("theme"));
-  if (!isDark || stored !== "dark") fail(`theme toggle failed (dark=${isDark}, stored=${stored})`);
+  const metaDark = await page.$eval("meta[name='theme-color']", (m) => m.content);
+  if (!isDark || stored !== "dark" || metaDark !== "#0f0f0f") fail(`theme toggle failed (dark=${isDark}, stored=${stored}, theme-color=${metaDark})`);
   note("theme toggle ok");
   await page.click("nav[aria-label='Primary'] button[aria-label*='theme']");
+
+  // A first visit opens in light mode even when the OS prefers dark; only the toggle's choice is remembered.
+  const fresh = await newPage(browser, 1440, 900);
+  await fresh.emulateMediaFeatures([{ name: "prefers-color-scheme", value: "dark" }]);
+  await fresh.evaluateOnNewDocument(() => localStorage.removeItem("theme"));
+  await fresh.goto(BASE + "/", { waitUntil: "networkidle0" });
+  const first = await fresh.evaluate(() => ({
+    light: document.documentElement.classList.contains("light"),
+    dark: document.documentElement.classList.contains("dark"),
+    scheme: document.documentElement.style.colorScheme,
+    meta: document.querySelector("meta[name='theme-color']").content
+  }));
+  if (!first.light || first.dark || first.scheme !== "light" || first.meta !== "#ffffff") fail(`first visit is not light: ${JSON.stringify(first)}`);
+  note("first visit opens light under a dark OS preference");
+  await fresh.close();
 
   // Timeline filters
   await page.evaluate(() => document.getElementById("experience").scrollIntoView());
@@ -537,22 +553,45 @@ async function notFound(browser) {
 
 async function boot(browser) {
   console.log("Boot sequence");
-  // First visit in a session: overlay runs, hands over to the hero, then unmounts.
+  // First visit in a session: overlay runs, hands over to the hero, then unmounts. The boot is over in
+  // about two seconds, quicker than a slow runner can poll for it, so an observer inside the page records
+  // what happened and the checks read the recording afterwards.
   let page = await newPage(browser, 1440, 900, { boot: true });
+  await page.evaluateOnNewDocument(() => {
+    const rec = { mounted: false, booting: false, lines: [], unmounted: false };
+    window.__boot = rec;
+    const observer = new MutationObserver(() => {
+      const overlay = document.querySelector(".boot");
+      if (overlay && !rec.mounted) {
+        rec.mounted = true;
+        rec.booting = document.documentElement.classList.contains("is-booting");
+      }
+      if (overlay) {
+        const lines = [...overlay.querySelectorAll(".boot-line")].map((l) => l.textContent);
+        if (lines.length > rec.lines.length) rec.lines = lines;
+      }
+      if (rec.mounted && !overlay) {
+        rec.unmounted = true;
+        observer.disconnect();
+      }
+    });
+    // This runs before <html> exists, so observe the document node itself.
+    observer.observe(document, { childList: true, subtree: true, attributes: true, attributeFilter: ["class"] });
+  });
   await page.goto(BASE + "/", { waitUntil: "domcontentloaded" });
-  const mounted = await page.waitForSelector(".boot", { timeout: 8000 }).catch(() => null);
-  if (!mounted) {
+  const finished = await page
+    .waitForFunction(() => window.__boot.unmounted, { timeout: 15000 })
+    .then(() => true)
+    .catch(() => false);
+  const rec = await page.evaluate(() => window.__boot);
+  if (!rec.mounted) {
     fail("boot overlay never mounted on a first visit");
   } else {
-    if (!(await page.evaluate(() => document.documentElement.classList.contains("is-booting")))) fail("html.is-booting not set while booting");
-    const lines = await page.$$eval(".boot-line", (ls) => ls.map((l) => l.textContent));
+    if (!rec.booting) fail("html.is-booting not set while booting");
+    const lines = rec.lines;
     if (!/run portfolio/.test(lines[0] || "")) fail(`boot prompt line: "${lines[0]}"`);
     if (!/^\d+ projects · \d+ automations · \d+ aws certs$/.test(lines[1] || "")) fail(`boot facts line: "${lines[1]}"`);
     if (!/in addis ababa · (light|dark) theme/.test(lines[2] || "")) fail(`boot status line: "${lines[2]}"`);
-    const finished = await page
-      .waitForFunction(() => !document.querySelector(".boot"), { timeout: 8000 })
-      .then(() => true)
-      .catch(() => false);
     if (!finished) fail("boot overlay never unmounted");
     if ((await page.evaluate(() => sessionStorage.getItem("boot-seen"))) !== "1") fail("boot-seen not stored after boot");
     await sleep(2200);

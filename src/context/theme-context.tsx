@@ -10,19 +10,16 @@ interface ThemeContextValue {
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
-// Detect the best starting theme based on stored preference or system settings.
+// Matches --background in index.css for each theme; keeps the browser chrome on phones in step with the page.
+const themeColor: Record<Theme, string> = { light: "#ffffff", dark: "#0f0f0f" };
+
+// The site opens in light mode; only a theme the visitor picked with the toggle is remembered (see public/theme.js).
 const getPreferredTheme = (): Theme => {
   if (typeof window === "undefined") {
     return "light";
   }
 
-  const storedTheme = window.localStorage.getItem("theme") as Theme | null;
-  if (storedTheme === "light" || storedTheme === "dark") {
-    return storedTheme;
-  }
-
-  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-  return prefersDark ? "dark" : "light";
+  return window.localStorage.getItem("theme") === "dark" ? "dark" : "light";
 };
 
 interface ThemeProviderProps {
@@ -32,7 +29,7 @@ interface ThemeProviderProps {
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const [theme, setThemeState] = useState<Theme>(getPreferredTheme);
 
-  // Sync the chosen theme with the <html> element and the color-scheme media query.
+  // Sync the chosen theme with the <html> element, the color-scheme and the theme-color meta.
   useEffect(() => {
     if (typeof window === "undefined") {
       return;
@@ -42,28 +39,9 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     root.classList.remove(theme === "dark" ? "light" : "dark");
     root.classList.add(theme);
     root.style.colorScheme = theme;
+    window.document.querySelector<HTMLMetaElement>("meta[name='theme-color']")?.setAttribute("content", themeColor[theme]);
   }, [theme]);
 
-  // React to OS-level theme changes when the user has not manually chosen a preference.
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = (event: MediaQueryListEvent) => {
-      const storedTheme = window.localStorage.getItem("theme");
-      if (storedTheme === "light" || storedTheme === "dark") {
-        return;
-      }
-      setThemeState(event.matches ? "dark" : "light");
-    };
-
-    mediaQuery.addEventListener("change", handler);
-    return () => mediaQuery.removeEventListener("change", handler);
-  }, []);
-
-  // Only an explicit choice is persisted, so the OS preference keeps applying until the user picks one.
   const setTheme = (value: Theme) => {
     window.localStorage.setItem("theme", value);
     setThemeState(value);

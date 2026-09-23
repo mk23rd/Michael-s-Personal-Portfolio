@@ -69,7 +69,7 @@ src/
     boot.ts                 Boot state: once per tab session on desktop-sized screens, never on deep links or reduced motion
     images.ts               Imports every image rendition and groups them by name, format and width
     palette.ts              Tiny event bus so any component can open the palette
-  context/theme-context.tsx Light/dark theme, persisted to localStorage, syncs with the OS
+  context/theme-context.tsx Light by default; a theme picked with the toggle is persisted to localStorage
   pages/Index.tsx, NotFound.tsx
 ```
 
@@ -97,7 +97,7 @@ npm run test:smoke  # Headless-browser smoke suite against dist/ (see below)
 
 ## Testing
 
-`npm run test:smoke` builds nothing itself; run `npm run build` first. It starts `vite preview`, drives a headless Chromium through the site and fails on any console error, failed request, CSP violation or broken behaviour. It covers the security headers and cache policy, full-page screenshots in both themes at three widths, an axe-core pass (serious/critical violations fail), every interaction (nav, deck, theme toggle, timeline filters, FAQ, contact form, responsive images), the mobile menu's focus trap, reduced motion, the 404 page, the boot sequence and the command palette, status line, cursor and pipeline board. Screenshots land in `test-results/smoke/`.
+`npm run test:smoke` builds nothing itself; run `npm run build` first. It starts `vite preview`, drives a headless Chromium through the site and fails on any console error, failed request, CSP violation or broken behaviour. It covers the security headers and cache policy, full-page screenshots in both themes at three widths, an axe-core pass (serious/critical violations fail), every interaction (nav, deck, theme toggle and light-by-default, tool strip marks, timeline filters, FAQ, contact form, responsive images), the mobile menu's focus trap, reduced motion, the 404 page, the boot sequence and the command palette, status line, cursor and pipeline board. Screenshots land in `test-results/smoke/`.
 
 It uses `puppeteer-core`, so it needs a browser that is already installed: Edge or Chrome are found automatically, or set `PUPPETEER_EXECUTABLE_PATH`. `--only accessibility,boot` runs a subset; `--base https://…` tests a deployed copy instead of the local build.
 
