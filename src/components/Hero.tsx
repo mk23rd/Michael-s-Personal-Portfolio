@@ -42,7 +42,9 @@ const Hero = () => {
                   {word}
                 </span>
               </span>
-              {index === BREAK_AFTER ? <br className="hidden sm:inline" /> : " "}
+              {/* The space stays so the text reads "cloud to" wherever the line break is hidden. */}
+              {index === BREAK_AFTER && <br className="hidden sm:inline" />}
+              {index < HEADLINE.length - 1 && " "}
             </Fragment>
           ))}
         </h1>

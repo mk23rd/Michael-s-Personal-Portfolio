@@ -126,7 +126,10 @@
     *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
+      /* 0s, not 0.01ms: a non-zero duration would make every element transition every
+         property, including inherited `visibility`, so focus() on something that has just
+         been shown (the mobile menu's first link) would still find it hidden and refuse. */
+      transition-duration: 0s !important;
     }
   }
 }

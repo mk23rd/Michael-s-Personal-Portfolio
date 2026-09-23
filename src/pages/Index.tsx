@@ -13,10 +13,13 @@ import Services from "@/components/Services";
 import StackStrip from "@/components/StackStrip";
 import Timeline from "@/components/Timeline";
 import { useReveal } from "@/hooks/use-reveal";
+import { useHashTarget } from "@/hooks/use-hash-target";
 
 const Index = () => {
   // Runs after every section has mounted, so all [data-reveal] elements are observed.
   useReveal();
+  // The browser looked for the anchor before React had rendered anything, so deep links land here.
+  useHashTarget();
 
   return (
     <>
