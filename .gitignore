@@ -26,3 +26,6 @@ dist-ssr
 
 # Playwright MCP artifacts (screenshots, snapshots)
 .playwright-mcp/
+
+# Smoke-test screenshots (npm run test:smoke)
+test-results/
