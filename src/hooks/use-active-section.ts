@@ -8,20 +8,18 @@ export function useActiveSection(ids: string[]): string | null {
   const [active, setActive] = useState<string | null>(null);
 
   useEffect(() => {
-    const sections = ids
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => el !== null);
-    if (sections.length === 0) return;
-
     let frame = 0;
     const update = () => {
       frame = 0;
       const line = window.innerHeight * 0.35;
       let current: string | null = null;
-      for (const section of sections) {
+      for (const id of ids) {
+        // Looked up on every pass: the sections below the fold mount after the first paint (see Deferred).
+        const section = document.getElementById(id);
+        if (!section) continue;
         const rect = section.getBoundingClientRect();
         if (rect.top <= line && rect.bottom > line) {
-          current = section.id;
+          current = id;
           break;
         }
       }
@@ -31,7 +29,8 @@ export function useActiveSection(ids: string[]): string | null {
       if (!frame) frame = window.requestAnimationFrame(update);
     };
 
-    update();
+    // The first pass waits for a frame too, rather than forcing layout in the middle of mounting.
+    onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
     return () => {

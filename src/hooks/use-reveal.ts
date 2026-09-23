@@ -13,34 +13,32 @@ const TRIGGER_LINE = 0.9;
  * machine) can carry an element from below the viewport to above it between two frames,
  * so it never intersects and would stay at opacity 0 forever. A frame-throttled scroll
  * sweep therefore also reveals anything whose top has already passed the trigger line.
+ *
+ * Sections below the fold mount after the first paint (see Deferred), so a MutationObserver
+ * picks up their elements as they arrive instead of relying on one scan at mount.
  */
 export function useReveal() {
   useEffect(() => {
-    const pending = new Set(Array.from(document.querySelectorAll<HTMLElement>("[data-reveal]")));
-    if (pending.size === 0) return;
-
+    const pending = new Set<HTMLElement>();
     const reveal = (el: Element) => {
       el.classList.add("is-visible");
       pending.delete(el as HTMLElement);
     };
 
-    if (!("IntersectionObserver" in window)) {
-      pending.forEach(reveal);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            reveal(entry.target);
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { rootMargin: `0px 0px -${Math.round((1 - TRIGGER_LINE) * 100)}% 0px`, threshold: 0.05 }
-    );
-    pending.forEach((el) => observer.observe(el));
+    const observer =
+      "IntersectionObserver" in window
+        ? new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  reveal(entry.target);
+                  observer?.unobserve(entry.target);
+                }
+              });
+            },
+            { rootMargin: `0px 0px -${Math.round((1 - TRIGGER_LINE) * 100)}% 0px`, threshold: 0.05 }
+          )
+        : null;
 
     let frame = 0;
     const sweep = () => {
@@ -50,21 +48,45 @@ export function useReveal() {
       const passed = Array.from(pending).filter((el) => el.getBoundingClientRect().top < line);
       passed.forEach((el) => {
         reveal(el);
-        observer.unobserve(el);
+        observer?.unobserve(el);
       });
-      if (pending.size === 0) window.removeEventListener("scroll", onScroll);
     };
     const onScroll = () => {
-      if (!frame) frame = requestAnimationFrame(sweep);
+      if (pending.size && !frame) frame = requestAnimationFrame(sweep);
     };
 
+    const track = (root: ParentNode) => {
+      const found = Array.from(root.querySelectorAll<HTMLElement>("[data-reveal]"));
+      if (root instanceof HTMLElement && root.matches("[data-reveal]")) found.unshift(root);
+      const fresh = found.filter((el) => !el.classList.contains("is-visible") && !pending.has(el));
+      if (fresh.length === 0) return;
+      if (!observer) {
+        fresh.forEach(reveal);
+        return;
+      }
+      fresh.forEach((el) => {
+        pending.add(el);
+        observer.observe(el);
+      });
+      // Covers loading mid-page (hash link, restored scroll position): anything already
+      // above the viewport is switched on while off-screen instead of animating in later.
+      onScroll();
+    };
+
+    track(document);
+    const mutations = new MutationObserver((records) => {
+      records.forEach((record) => {
+        record.addedNodes.forEach((node) => {
+          if (node instanceof Element) track(node);
+        });
+      });
+    });
+    mutations.observe(document.body, { childList: true, subtree: true });
     window.addEventListener("scroll", onScroll, { passive: true });
-    // Covers loading mid-page (hash link, restored scroll position): anything already
-    // above the viewport is switched on while off-screen instead of animating in later.
-    frame = requestAnimationFrame(sweep);
 
     return () => {
-      observer.disconnect();
+      mutations.disconnect();
+      observer?.disconnect();
       window.removeEventListener("scroll", onScroll);
       if (frame) cancelAnimationFrame(frame);
     };

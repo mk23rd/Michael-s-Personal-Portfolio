@@ -1,14 +1,8 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 
-const App = () => (
-  <BrowserRouter>
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="*" element={<NotFound />} />
-    </Routes>
-  </BrowserRouter>
-);
+// Everything lives on the front page; any other path is a 404. Netlify serves dist/404.html for
+// unknown paths, and `vite preview` falls back to index.html, so this covers both.
+const App = () => (window.location.pathname === "/" ? <Index /> : <NotFound />);
 
 export default App;

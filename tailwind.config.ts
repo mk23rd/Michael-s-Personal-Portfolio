@@ -38,8 +38,22 @@ export default {
         sm: "calc(var(--radius) - 4px)"
       },
       fontFamily: {
-        sans: ["Instrument Sans", "ui-sans-serif", "system-ui", "sans-serif"],
-        display: ["Bricolage Grotesque", "Instrument Sans", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: [
+          "Instrument Sans",
+          "Instrument Sans Fallback Arial",
+          "Instrument Sans Fallback Roboto",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif"
+        ],
+        display: [
+          "Bricolage Grotesque",
+          "Bricolage Grotesque Fallback Arial",
+          "Bricolage Grotesque Fallback Roboto",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif"
+        ],
         mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Consolas", "monospace"]
       }
     }

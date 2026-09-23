@@ -33,7 +33,7 @@ const Navigation = () => {
     const update = () => {
       const link = list.querySelector<HTMLElement>("a[aria-current='true']");
       if (!link) {
-        setIndicator((state) => ({ ...state, visible: false }));
+        setIndicator((state) => (state.visible ? { ...state, visible: false } : state));
         return;
       }
       setIndicator({ x: link.offsetLeft, width: link.offsetWidth, visible: true });

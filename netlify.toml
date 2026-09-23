@@ -1,0 +1,15 @@
+# Build settings live here so they are versioned with the code; the Netlify dashboard only
+# holds what a file cannot express (form notifications, domains).
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Vite 8 needs Node ^20.19 or >=22.12. Keep in step with .github/workflows/ci.yml.
+  NODE_VERSION = "22"
+
+# Response headers are declared in public/_headers (copied into dist/ by Vite) so that
+# `vite preview` can replay the same headers locally; see vite.config.ts.
+#
+# There is deliberately no catch-all redirect: the site has a single route, and Vite
+# writes dist/404.html, which Netlify serves for unknown paths with a real 404 status.

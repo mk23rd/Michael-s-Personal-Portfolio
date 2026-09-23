@@ -22,10 +22,14 @@ const ProjectCard = ({ project, featured = false, index }: ProjectCardProps) => 
         style={vars({ "--card-brand": project.brand, "--card-ink": project.ink })}
       >
         <div className="absolute left-6 top-5 flex items-center gap-3 text-sm sm:left-8 sm:top-7">
-          <span className="opacity-90">{project.kind}</span>
-          <span className="opacity-60">{project.year}</span>
+          <span>{project.kind}</span>
+          <span className="font-mono text-[0.8125rem]">{project.year}</span>
         </div>
-        <ProjectArtwork project={project} variant="card" />
+        <ProjectArtwork
+          project={project}
+          variant="card"
+          sizes={featured ? "(min-width: 85rem) 63rem, (min-width: 64rem) 72vw, (min-width: 48rem) 46vw, 92vw" : undefined}
+        />
       </div>
 
       <div className="flex flex-col gap-5 p-6 sm:p-8">

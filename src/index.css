@@ -111,6 +111,11 @@
     color: hsl(var(--background));
   }
 
+  /* <picture> only chooses a source; the <img> inside is what gets positioned and sized. */
+  picture {
+    display: contents;
+  }
+
   :focus-visible {
     outline: 2px solid hsl(var(--ring));
     outline-offset: 3px;
@@ -544,7 +549,7 @@
     box-shadow: 0 14px 30px -10px rgb(0 0 0 / 0.5);
   }
 
-  .deck-card-shot > img {
+  .deck-card-shot img {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -585,6 +590,31 @@
 
   .ticker:hover .ticker-track {
     animation-play-state: paused;
+  }
+
+  /* Logo-and-name lockups: ink at rest; while the ticker is paused a mark takes its brand colour. */
+  .lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    color: hsl(var(--muted-foreground));
+    transition: color 220ms var(--ease-soft);
+  }
+
+  /* Every mark's viewBox is cropped to its ink, so a shared height puts them all on the same cap height. */
+  .lockup .mark {
+    width: auto;
+    height: 0.8em;
+    flex: none;
+    transition: color 220ms var(--ease-soft);
+  }
+
+  .lockup:hover {
+    color: hsl(var(--foreground));
+  }
+
+  .lockup:hover .mark {
+    color: var(--tint, hsl(var(--foreground)));
   }
 
   @keyframes ticker {
@@ -1148,12 +1178,16 @@
       0 24px 40px -24px rgb(0 0 0 / 0.35);
   }
 
-  .badge-spin svg.ring {
+  .badge-spin .ring-spin {
     position: absolute;
     inset: 0;
+    animation: spin 26s linear infinite;
+  }
+
+  .badge-spin svg.ring {
+    display: block;
     width: 100%;
     height: 100%;
-    animation: spin 26s linear infinite;
     font-family: theme("fontFamily.sans");
     font-size: 9.5px;
     font-weight: 500;
@@ -1163,7 +1197,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .badge-spin svg.ring {
+    .badge-spin .ring-spin {
       animation: none;
     }
   }
@@ -1521,47 +1555,26 @@
     opacity: 0.35;
   }
 
+  /* Packets ride their link on a transform animation that Flow builds from the path geometry (see
+     Flow.tsx); `offset-path` would do the same declaratively but runs on the main thread every frame.
+     Scaled to nothing until that animation is attached. */
   .flow-packet {
-    display: none;
     position: absolute;
     top: 0;
     left: 0;
     width: 7px;
     height: 7px;
+    margin: -3.5px 0 0 -3.5px;
     border-radius: 9999px;
     background: hsl(var(--foreground));
     box-shadow: 0 0 0 3px hsl(var(--card));
     pointer-events: none;
-    offset-rotate: 0deg;
-    animation: flow-run 3.2s linear infinite;
+    transform: scale(0);
     transition: opacity 300ms;
   }
 
   .flow-packet.is-dim {
     opacity: 0.2;
-  }
-
-  @supports (offset-path: path("M0 0h1")) {
-    .flow-packet {
-      display: block;
-    }
-  }
-
-  @keyframes flow-run {
-    0% {
-      offset-distance: 0%;
-      opacity: 0;
-    }
-    8% {
-      opacity: 1;
-    }
-    92% {
-      opacity: 1;
-    }
-    100% {
-      offset-distance: 100%;
-      opacity: 0;
-    }
   }
 
   .flow-col {

@@ -7,6 +7,7 @@ import {
   MapPin,
   type LucideIcon
 } from "lucide-react";
+import Picture from "@/components/Picture";
 import { profile } from "@/data/portfolio";
 import { useLocalTime } from "@/hooks/use-local-time";
 import { vars } from "@/lib/utils";
@@ -31,11 +32,10 @@ const About = () => {
       <div className="wrap grid gap-10 lg:grid-cols-12 lg:gap-16">
         <figure className="relative lg:col-span-5 lg:self-start" data-reveal="scale">
           <div className="group aspect-[4/5] w-full overflow-hidden rounded-3xl">
-            <img
-              src={profile.portrait}
+            <Picture
+              name={profile.portrait}
+              sizes="(min-width: 85rem) 34rem, (min-width: 64rem) 40vw, 92vw"
               alt="Michael Wagaye in a dark suit, photographed outdoors"
-              width={1200}
-              height={1600}
               loading="lazy"
               decoding="async"
               className="h-full w-full object-cover object-top transition-transform duration-[1200ms] ease-out group-hover:scale-[1.03]"
