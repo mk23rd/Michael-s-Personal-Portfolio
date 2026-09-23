@@ -24,6 +24,7 @@ import {
   X,
   type LucideIcon
 } from "lucide-react";
+import type { ImageName } from "@/lib/images";
 
 export const profile = {
   name: "Michael Wagaye",
@@ -37,7 +38,7 @@ export const profile = {
   phone: "+251 98 581 7122",
   phoneHref: "tel:+251985817122",
   resume: "/michael-wagaye-resume.pdf",
-  portrait: "/portrait.jpg",
+  portrait: "portrait" as ImageName,
   github: "https://github.com/mk23rd"
 };
 
@@ -78,7 +79,8 @@ export type Project = {
   live?: string;
   brand: string;
   ink: string;
-  image?: string;
+  /** Key into src/lib/images; the screenshot and its AVIF/WebP renditions live in src/assets/images. */
+  image?: ImageName;
   imageAlt?: string;
   /** Illustration on a white ground rather than a screenshot; shown whole instead of cropped. */
   fit?: "art";
@@ -99,7 +101,7 @@ export const projects: Project[] = [
     github: "https://github.com/mk23rd/Risk_Integrated_Crowdfunding_and_Investment_Platform",
     brand: "#2b63f5",
     ink: "#ffffff",
-    image: "/lawata.jpg",
+    image: "lawata",
     imageAlt: "Lawata homepage: the headline 'Create or crowdfund' drawn as candlestick chart bars",
     live: "https://lawata.vercel.app/"
   },
@@ -116,7 +118,7 @@ export const projects: Project[] = [
     github: "https://github.com/mk23rd/Synth",
     brand: "#6d4842",
     ink: "#f3f0d6",
-    image: "/synth.jpg",
+    image: "synth",
     imageAlt: "Synth homepage showing leather bags, belts and a jacket on a brown background"
   },
   {
@@ -132,7 +134,7 @@ export const projects: Project[] = [
     github: "https://github.com/mk23rd/Fewes",
     brand: "#35c11c",
     ink: "#062b00",
-    image: "/fewes.jpg",
+    image: "fewes",
     imageAlt: "Fewes homepage with an Amharic headline, a salad bowl and falling spices on green"
   },
   {

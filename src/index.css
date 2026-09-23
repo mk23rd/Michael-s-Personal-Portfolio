@@ -111,6 +111,11 @@
     color: hsl(var(--background));
   }
 
+  /* <picture> only chooses a source; the <img> inside is what gets positioned and sized. */
+  picture {
+    display: contents;
+  }
+
   :focus-visible {
     outline: 2px solid hsl(var(--ring));
     outline-offset: 3px;
@@ -544,7 +549,7 @@
     box-shadow: 0 14px 30px -10px rgb(0 0 0 / 0.5);
   }
 
-  .deck-card-shot > img {
+  .deck-card-shot img {
     width: 100%;
     height: 100%;
     object-fit: cover;

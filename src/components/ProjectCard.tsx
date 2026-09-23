@@ -25,7 +25,11 @@ const ProjectCard = ({ project, featured = false, index }: ProjectCardProps) => 
           <span className="opacity-90">{project.kind}</span>
           <span className="opacity-60">{project.year}</span>
         </div>
-        <ProjectArtwork project={project} variant="card" />
+        <ProjectArtwork
+          project={project}
+          variant="card"
+          sizes={featured ? "(min-width: 85rem) 63rem, (min-width: 64rem) 72vw, (min-width: 48rem) 46vw, 92vw" : undefined}
+        />
       </div>
 
       <div className="flex flex-col gap-5 p-6 sm:p-8">
