@@ -1,0 +1,15 @@
+# Netlify response headers. `vite preview` replays this file locally (see vite.config.ts),
+# so the smoke suite runs under the same policy as production.
+#
+# The policy has no 'unsafe-inline' anywhere: the theme script is an external file, fonts
+# and images are self-hosted and Vite is told never to inline assets as data: URLs.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'; object-src 'none'
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+# Everything under /assets/ carries a content hash in its file name, so it can be cached forever.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
