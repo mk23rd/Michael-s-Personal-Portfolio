@@ -592,6 +592,31 @@
     animation-play-state: paused;
   }
 
+  /* Logo-and-name lockups: ink at rest; while the ticker is paused a mark takes its brand colour. */
+  .lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    color: hsl(var(--muted-foreground));
+    transition: color 220ms var(--ease-soft);
+  }
+
+  /* Every mark's viewBox is cropped to its ink, so a shared height puts them all on the same cap height. */
+  .lockup .mark {
+    width: auto;
+    height: 0.8em;
+    flex: none;
+    transition: color 220ms var(--ease-soft);
+  }
+
+  .lockup:hover {
+    color: hsl(var(--foreground));
+  }
+
+  .lockup:hover .mark {
+    color: var(--tint, hsl(var(--foreground)));
+  }
+
   @keyframes ticker {
     to {
       transform: translateX(-100%);

@@ -266,6 +266,66 @@ async function interactions(browser) {
   await sleep(900);
   await shot(page, "ix-work-hover");
 
+  // Tool strip: one brand mark per stack item, all drawn and on a shared cap height; hovering a lockup pauses the
+  // marquee and shows the brand colour.
+  await page.evaluate(() => document.querySelector(".ticker").scrollIntoView({ block: "center" }));
+  await sleep(400);
+  const strip = await page.$$eval(".ticker-track:not([aria-hidden]) li", (items) =>
+    items.map((li) => {
+      const mark = li.querySelector("svg.mark");
+      const box = mark?.getBBox();
+      const height = mark?.getBoundingClientRect().height;
+      return { name: li.textContent.trim(), drawn: !!box && box.width > 0 && box.height > 0, height: Math.round(height ?? 0) };
+    })
+  );
+  const heights = new Set(strip.map((s) => s.height));
+  if (strip.length < 10) fail(`tool strip has only ${strip.length} items`);
+  strip.filter((s) => !s.drawn).forEach((s) => fail(`tool strip mark for "${s.name}" is empty`));
+  if (heights.size !== 1) fail(`tool strip marks are not the same height: ${[...heights].join(", ")}px`);
+  const ticker = await page.$(".ticker");
+  const tickerBox = await ticker.boundingBox();
+  await page.mouse.move(tickerBox.x + 8, tickerBox.y + tickerBox.height / 2);
+  await sleep(300);
+  // The marquee has moved on since load, so pick whichever lockup is fully on screen now that it is paused.
+  let lockup = null;
+  let lockupBox = null;
+  for (const candidate of await page.$$(".ticker .lockup")) {
+    const box = await candidate.boundingBox();
+    if (box && box.x > 0 && box.x + box.width < 1440) {
+      lockup = candidate;
+      lockupBox = box;
+      break;
+    }
+  }
+  if (!lockup) {
+    fail("no tool strip lockup is fully on screen");
+  } else {
+    await page.mouse.move(lockupBox.x + lockupBox.width / 2, lockupBox.y + lockupBox.height / 2);
+    await sleep(400);
+    const hovered = await lockup.evaluate((el) => {
+      // A mark without a brand tint falls back to the text colour, so the probe does too.
+      const probe = document.createElement("span");
+      probe.style.color = el.style.getPropertyValue("--tint");
+      document.body.append(probe);
+      const tint = getComputedStyle(probe).color;
+      probe.remove();
+      return {
+        name: el.textContent.trim(),
+        tint,
+        mark: getComputedStyle(el.querySelector(".mark")).color,
+        text: getComputedStyle(el).color,
+        body: getComputedStyle(document.body).color,
+        playState: getComputedStyle(el.closest(".ticker-track")).animationPlayState
+      };
+    });
+    if (hovered.mark !== hovered.tint) fail(`hovered "${hovered.name}" mark is ${hovered.mark}, expected tint ${hovered.tint}`);
+    if (hovered.text !== hovered.body) fail(`hovered "${hovered.name}" text is ${hovered.text}, expected ${hovered.body}`);
+    if (hovered.playState !== "paused") fail(`tool strip keeps moving while hovered (${hovered.playState})`);
+    await shot(page, "ix-strip-hover");
+    note(`tool strip: ${strip.length} marks drawn at ${[...heights][0]}px; hover tints "${hovered.name}" and pauses`);
+  }
+  await page.mouse.move(0, 0);
+
   // Responsive images: every candidate resolves and the browser picks a modern format
   const pictures = await page.$$eval("picture img", (imgs) =>
     imgs.map((img) => ({
