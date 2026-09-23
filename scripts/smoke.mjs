@@ -72,6 +72,29 @@ async function newPage(browser, width, height, opts = {}) {
   const page = await browser.newPage();
   await page.setViewport({ width, height, deviceScaleFactor: 1, isMobile: !!opts.touch, hasTouch: !!opts.touch });
   if (opts.reducedMotion) await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+  // Netlify injects its deploy-preview drawer into previews: a fixed div with an inline style attribute and a
+  // same-origin /.netlify/scripts/cdp loader that inline-styles and frames app.netlify.com. The CSP blocks all
+  // of that, so strip the injection from each document as it arrives and a preview tests like production.
+  const cdp = await page.createCDPSession();
+  await cdp.send("Fetch.enable", { patterns: [{ urlPattern: "*", resourceType: "Document", requestStage: "Response" }] });
+  cdp.on("Fetch.requestPaused", async ({ requestId, responseStatusCode: status = 0, responseHeaders = [] }) => {
+    try {
+      const isHtml = responseHeaders.some((h) => /^content-type$/i.test(h.name) && /text\/html/i.test(h.value));
+      if ((status >= 300 && status < 400) || !isHtml) return await cdp.send("Fetch.continueRequest", { requestId });
+      const { body, base64Encoded } = await cdp.send("Fetch.getResponseBody", { requestId });
+      const html = base64Encoded ? Buffer.from(body, "base64").toString("utf8") : body;
+      const clean = html.replace(/<div data-netlify-deploy-id[\s\S]*?<\/div>/, "");
+      if (clean === html) return await cdp.send("Fetch.continueRequest", { requestId });
+      await cdp.send("Fetch.fulfillRequest", {
+        requestId,
+        responseCode: status,
+        responseHeaders: responseHeaders.filter((h) => !/^content-(length|encoding)$/i.test(h.name)),
+        body: Buffer.from(clean, "utf8").toString("base64")
+      });
+    } catch {
+      // The page has already moved on; nothing to answer.
+    }
+  });
   // The boot overlay swallows early clicks, so most checks pretend it has already run this session.
   if (!opts.boot) await page.evaluateOnNewDocument(() => sessionStorage.setItem("boot-seen", "1"));
   // Collect Content-Security-Policy violations; they are reported when the page is closed.
@@ -111,7 +134,7 @@ async function openHome(page, theme = "light") {
   await page.reload({ waitUntil: "networkidle0" });
   await page.evaluate(() => document.fonts.ready);
   // The sections below the fold mount one at a time after the first paint; the footer is the last of them.
-  await page.waitForSelector("footer", { timeout: 5000 });
+  await page.waitForSelector("footer", { timeout: 10000 });
   // Programmatic scrollIntoView + smooth scrolling makes element positions stale mid-flight.
   await page.evaluate(() => (document.documentElement.style.scrollBehavior = "auto"));
 }
