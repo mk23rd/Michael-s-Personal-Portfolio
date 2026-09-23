@@ -757,32 +757,38 @@ async function features(browser) {
   note(`status line cycles: "${s0}" -> "${s1}"`);
 
   // Custom cursor on a fine pointer: mounted, tracks, reacts to links and form fields.
-  const hasCursor = await page.evaluate(() => document.documentElement.classList.contains("has-cursor") && !!document.querySelector(".cursor-dot"));
-  if (!hasCursor) fail("custom cursor not mounted on desktop");
-  await page.mouse.move(600, 300);
-  await sleep(80);
-  await page.mouse.move(640, 330);
-  await sleep(250);
-  const cursorState = await page.evaluate(() => ({
-    shown: document.querySelector(".cursor").classList.contains("is-shown"),
-    body: getComputedStyle(document.body).cursor
+  const pointer = await page.evaluate(() => ({
+    mounted: document.documentElement.classList.contains("has-cursor") && !!document.querySelector(".cursor-dot"),
+    fine: matchMedia("(pointer: fine)").matches,
+    hover: matchMedia("(hover: hover)").matches
   }));
-  if (!cursorState.shown || cursorState.body !== "none") fail(`cursor state: ${JSON.stringify(cursorState)}`);
-  const navBox = await (await page.$("nav[aria-label='Primary'] a[href='#work']")).boundingBox();
-  await page.mouse.move(navBox.x + navBox.width / 2, navBox.y + navBox.height / 2);
-  await sleep(250);
-  if (!(await page.$eval(".cursor", (el) => el.classList.contains("is-link")))) fail("cursor not in link state over a nav link");
-  await page.evaluate(() => document.getElementById("contact").scrollIntoView());
-  await sleep(500);
-  const fieldBox = await (await page.$("#contact-name")).boundingBox();
-  await page.mouse.move(fieldBox.x + 20, fieldBox.y + fieldBox.height / 2);
-  await sleep(250);
-  const fieldState = await page.evaluate(() => ({
-    field: document.querySelector(".cursor").classList.contains("is-field"),
-    inputCursor: getComputedStyle(document.getElementById("contact-name")).cursor
-  }));
-  if (!fieldState.field || fieldState.inputCursor === "none") fail(`cursor over a field: ${JSON.stringify(fieldState)}`);
-  note("cursor ok");
+  if (!pointer.mounted) fail(`custom cursor not mounted on desktop (${JSON.stringify(pointer)})`);
+  else {
+    await page.mouse.move(600, 300);
+    await sleep(80);
+    await page.mouse.move(640, 330);
+    await sleep(250);
+    const cursorState = await page.evaluate(() => ({
+      shown: document.querySelector(".cursor").classList.contains("is-shown"),
+      body: getComputedStyle(document.body).cursor
+    }));
+    if (!cursorState.shown || cursorState.body !== "none") fail(`cursor state: ${JSON.stringify(cursorState)}`);
+    const navBox = await (await page.$("nav[aria-label='Primary'] a[href='#work']")).boundingBox();
+    await page.mouse.move(navBox.x + navBox.width / 2, navBox.y + navBox.height / 2);
+    await sleep(250);
+    if (!(await page.$eval(".cursor", (el) => el.classList.contains("is-link")))) fail("cursor not in link state over a nav link");
+    await page.evaluate(() => document.getElementById("contact").scrollIntoView());
+    await sleep(500);
+    const fieldBox = await (await page.$("#contact-name")).boundingBox();
+    await page.mouse.move(fieldBox.x + 20, fieldBox.y + fieldBox.height / 2);
+    await sleep(250);
+    const fieldState = await page.evaluate(() => ({
+      field: document.querySelector(".cursor").classList.contains("is-field"),
+      inputCursor: getComputedStyle(document.getElementById("contact-name")).cursor
+    }));
+    if (!fieldState.field || fieldState.inputCursor === "none") fail(`cursor over a field: ${JSON.stringify(fieldState)}`);
+    note("cursor ok");
+  }
 
   // Live pipeline board: wired links + packets, hover lights a route and updates the caption.
   await page.evaluate(() => document.getElementById("automation").scrollIntoView());
@@ -855,7 +861,14 @@ async function features(browser) {
   const server = args.base ? null : await startPreview(Number(args.port));
   BASE = (args.base ?? server.url).replace(/\/$/, "");
   console.log(`Testing ${BASE} with ${findBrowser()}\n`);
-  const browser = await puppeteer.launch({ executablePath: findBrowser(), headless: true, args: ["--no-first-run"] });
+  // A headless Chromium on a machine without a mouse (CI runners) reports `pointer: none` and `hover: none`,
+  // which would hide the desktop-only cursor; declare a mouse so desktop pages behave like a desktop. Touch
+  // emulation on the phone pages still switches them to `pointer: coarse` / `hover: none`.
+  const browser = await puppeteer.launch({
+    executablePath: findBrowser(),
+    headless: true,
+    args: ["--no-first-run", "--blink-settings=primaryPointerType=4,availablePointerTypes=4,primaryHoverType=2,availableHoverTypes=2"]
+  });
   try {
     for (const name of wanted) await sections[name](browser);
   } catch (err) {
