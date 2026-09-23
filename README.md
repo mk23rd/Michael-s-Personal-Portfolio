@@ -54,11 +54,15 @@ src/
     use-active-section.ts   Tracks which section is in view for the nav indicator
     use-local-time.ts       Ticking clock for a given IANA time zone
     use-reduced-motion.ts   Live prefers-reduced-motion media query
+    use-hash-target.ts      Scrolls a deep-linked #section into view once the page has mounted
   lib/
     boot.ts                 Boot state: runs once per tab session, never on deep links or reduced motion
     palette.ts              Tiny event bus so any component can open the palette
   context/theme-context.tsx Light/dark theme, persisted to localStorage, syncs with the OS
   pages/Index.tsx, NotFound.tsx
+e2e/                        Playwright end-to-end suite (see Tests)
+playwright.config.ts        Browser projects, ports and the web server the suite runs against
+.github/workflows/ci.yml    Typecheck, lint, build, then the e2e suite on five browser projects
 ```
 
 ## Editing content
@@ -76,7 +80,27 @@ npm run typecheck  # tsc --noEmit against tsconfig.app.json
 npm run lint       # ESLint (typescript-eslint, react-hooks, react-refresh)
 npm run build      # Production build to dist/
 npm run preview    # Serve dist/ locally
+
+npm test               # Playwright end-to-end suite, all five browser projects
+npm run test:ui        # Same, in Playwright's UI mode
+npm run test:headed    # Chromium only, with a visible browser
+npm run test:report    # Open the HTML report from the last run
+npm run typecheck:e2e  # tsc --noEmit against e2e/tsconfig.json
 ```
+
+## Tests
+
+End-to-end tests live in `e2e/` and run with [Playwright](https://playwright.dev/). They cover the front page and the 404 route, the desktop nav and the mobile menu, theme detection and persistence, the command palette and its shell commands, the contact form (Netlify payload, native validation, email fallback), the sections (project cards and deep links, timeline filters, FAQ accordion, pipeline board) and the motion system (boot log, scroll reveals, reduced motion, custom cursor).
+
+```sh
+npx playwright install                               # once, downloads the browsers
+npm test                                             # every project, against the Vite dev server
+npm test -- --project=chromium -g "command palette"  # narrow it down
+```
+
+Five projects: `chromium`, `firefox`, `webkit`, plus `mobile-chrome` (Pixel 7) and `mobile-safari` (iPhone 14). The suite starts its own server on port 4319 (`E2E_PORT` overrides it) so it never picks up a stray `npm run dev`. `prefers-reduced-motion` is emulated everywhere except `e2e/motion.spec.ts`, which opts back in to test the animations themselves; the boot-log tests drive Playwright's fake clock so they don't depend on real timing.
+
+CI (`.github/workflows/ci.yml`) runs typecheck, lint and build once, then runs the suite against `vite preview` of that build in a five-way matrix, one job per browser project, with the HTML report of each attached as an artifact.
 
 ## Contact form
 

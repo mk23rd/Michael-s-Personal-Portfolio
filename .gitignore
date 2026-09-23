@@ -26,3 +26,9 @@ dist-ssr
 
 # Playwright MCP artifacts (screenshots, snapshots)
 .playwright-mcp/
+
+# Playwright test output
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/

@@ -19,5 +19,9 @@ export const goTo = (hash: string) => {
   target.scrollIntoView({ behavior: "smooth", block: "start" });
   window.history.pushState(null, "", `#${id}`);
   if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
-  target.focus({ preventScroll: true });
+  // The palette that calls this is still open, and the page behind it still `inert`, until React
+  // commits the close; an inert element silently refuses focus, so the move waits for the next
+  // task. A timer rather than a frame keeps it ordered before any follow-up focus a caller
+  // schedules (`sudo hire` hands focus to the form 700ms later).
+  window.setTimeout(() => target.focus({ preventScroll: true }), 0);
 };
