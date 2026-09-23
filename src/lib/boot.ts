@@ -1,6 +1,7 @@
 /**
- * A short "boot" moment on the first visit of a session: a few lines of log, then the page comes up.
- * The hero's entrance is held back by `--boot` (read by `.rise`) so it lands as the overlay wipes away.
+ * A short "boot" moment on the first visit of a session, on desktop-sized screens: a few lines of log,
+ * then the page comes up. The hero's entrance is held back by `--boot` (read by `.rise`) so it lands as
+ * the overlay wipes away.
  */
 
 /** How long the log is on screen before the wipe starts. */
@@ -28,11 +29,18 @@ const markSeen = () => {
   }
 };
 
-/** True only once per tab session, never for reduced-motion visitors or deep links to a section. */
+/** Phones skip the boot: on a small screen over a slow connection the wait costs more than the moment is worth. */
+export const BOOT_MIN_WIDTH = "(min-width: 48rem)";
+
+/**
+ * True only once per tab session on a desktop-sized screen; never for reduced-motion visitors or deep
+ * links to a section.
+ */
 export const shouldBoot = () =>
   typeof window !== "undefined" &&
   !seen() &&
   !window.location.hash &&
+  window.matchMedia(BOOT_MIN_WIDTH).matches &&
   !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /** Call before the first render so the hero's delays are in place for the very first frame. */

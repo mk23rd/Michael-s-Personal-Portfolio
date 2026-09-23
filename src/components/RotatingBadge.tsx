@@ -9,19 +9,25 @@ type RotatingBadgeProps = {
 // Circumference of the r=37 path below, so the text is spaced evenly around the ring.
 const RING_LENGTH = 232.5;
 
-/** A slowly turning ring of text around an arrow; decorative, so hidden from assistive tech. */
+/**
+ * A slowly turning ring of text around an arrow; decorative, so hidden from assistive tech.
+ * The wrapper span turns rather than the SVG itself: rotating an SVG root makes the browser
+ * re-lay-out its text on every frame, whereas a transformed HTML element runs on the compositor.
+ */
 const RotatingBadge = ({ text, className }: RotatingBadgeProps) => (
   <div className={cn("badge-spin", className)} aria-hidden="true">
-    <svg className="ring" viewBox="0 0 100 100">
-      <defs>
-        <path id="badge-ring-path" d="M50 50 m-37 0 a37 37 0 1 1 74 0 a37 37 0 1 1 -74 0" />
-      </defs>
-      <text>
-        <textPath href="#badge-ring-path" textLength={RING_LENGTH} lengthAdjust="spacing">
-          {text}
-        </textPath>
-      </text>
-    </svg>
+    <span className="ring-spin">
+      <svg className="ring" viewBox="0 0 100 100">
+        <defs>
+          <path id="badge-ring-path" d="M50 50 m-37 0 a37 37 0 1 1 74 0 a37 37 0 1 1 -74 0" />
+        </defs>
+        <text>
+          <textPath href="#badge-ring-path" textLength={RING_LENGTH} lengthAdjust="spacing">
+            {text}
+          </textPath>
+        </text>
+      </svg>
+    </span>
     <ArrowDownRight size={22} strokeWidth={1.75} />
   </div>
 );

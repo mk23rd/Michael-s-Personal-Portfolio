@@ -1,4 +1,4 @@
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { automation, automationMore, pipeline, type PipelineNode } from "@/data/portfolio";
 import { useReducedMotion } from "@/hooks/use-reduced-motion";
 import { cn } from "@/lib/utils";
@@ -18,12 +18,19 @@ const verticalCurve = (a: Box, b: Box) => {
   return `M${round(a.cx)} ${round(a.bottom)} C${round(a.cx)} ${round(mid)}, ${round(b.cx)} ${round(mid)}, ${round(b.cx)} ${round(b.top)}`;
 };
 
+const sameLinks = (a: Link[], b: Link[]) => a.length === b.length && a.every((link, i) => link.id === b[i].id && link.d === b[i].d);
+
 const running = automation.length + automationMore.length;
+
+/** Points sampled along each link for the packet keyframes; plenty for these gentle curves. */
+const PACKET_STEPS = 48;
+/** Fraction of the trip over which a packet grows in at the start and shrinks away at the end. */
+const PACKET_FADE = 0.08;
 
 /**
  * A live schematic of what the automation reads from, what runs it and where the results land.
  * Nodes are plain buttons laid out with CSS; the connectors are measured from the DOM and drawn
- * in an SVG overlay, with packets riding each path via CSS motion paths.
+ * in an SVG overlay, with packets riding each path on a compositor-friendly transform animation.
  */
 const Flow = () => {
   const reduced = useReducedMotion();
@@ -71,19 +78,46 @@ const Flow = () => {
       next.push({ id: "sources-core", from: "sources", to: "core", d: verticalCurve(sources, core) });
       next.push({ id: "core-outputs", from: "core", to: "outputs", d: verticalCurve(core, outputs) });
     }
-    setLinks(next);
-    setSize({ width: origin.width, height: origin.height });
+    // Same geometry, same state: no re-render (and no restarted packets) for a no-op resize.
+    setLinks((current) => (sameLinks(current, next) ? current : next));
+    setSize((current) => (current.width === origin.width && current.height === origin.height ? current : { width: origin.width, height: origin.height }));
   }, []);
 
-  useLayoutEffect(() => {
-    measure();
+  // Measured from ResizeObserver callbacks only: they run after layout, so the reads are free, whereas
+  // measuring in an effect right after mount would force the browser to lay the page out early.
+  // Watching the nodes as well as the board catches font swaps that move a node without resizing the board.
+  useEffect(() => {
     const root = rootRef.current;
     if (!root) return;
     const observer = new ResizeObserver(() => measure());
     observer.observe(root);
-    document.fonts?.ready.then(measure).catch(() => undefined);
+    root.querySelectorAll<HTMLElement>("[data-node]").forEach((node) => observer.observe(node));
     return () => observer.disconnect();
   }, [measure]);
+
+  // Each packet follows its link on a transform-only animation sampled from the path, which stays on the
+  // compositor. Scale stands in for the fade so `.is-dim` can still control opacity separately.
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root || reduced || links.length === 0) return;
+    const animations: Animation[] = [];
+    root.querySelectorAll<HTMLElement>(".flow-packet").forEach((packet, index) => {
+      const path = root.querySelector<SVGPathElement>(`path[data-link="${packet.dataset.link}"]`);
+      if (!path || typeof packet.animate !== "function") return;
+      const length = path.getTotalLength();
+      const keyframes = Array.from({ length: PACKET_STEPS + 1 }, (_, step) => {
+        const t = step / PACKET_STEPS;
+        const point = path.getPointAtLength(length * t);
+        const scale = Math.min(1, t / PACKET_FADE, (1 - t) / PACKET_FADE);
+        return { transform: `translate(${round(point.x)}px, ${round(point.y)}px) scale(${round(scale)})` };
+      });
+      const duration = (3.2 + (index % 4) * 0.45) * 1000;
+      animations.push(
+        packet.animate(keyframes, { duration, delay: -((index * 0.7) % 3.2) * 1000, iterations: Infinity, easing: "linear" })
+      );
+    });
+    return () => animations.forEach((animation) => animation.cancel());
+  }, [links, reduced]);
 
   // Which nodes and links light up for the active node.
   const lit = useMemo(() => {
@@ -160,21 +194,18 @@ const Flow = () => {
             <path
               key={link.id}
               d={link.d}
+              data-link={link.id}
               className={cn("flow-link", active && (lit.paths.has(link.id) ? "is-lit" : "is-dim"))}
             />
           ))}
         </svg>
 
         {!reduced &&
-          links.map((link, index) => (
+          links.map((link) => (
             <span
               key={link.id}
               className={cn("flow-packet", active && !lit.paths.has(link.id) && "is-dim")}
-              style={{
-                offsetPath: `path("${link.d}")`,
-                animationDuration: `${3.2 + (index % 4) * 0.45}s`,
-                animationDelay: `-${(index * 0.7) % 3.2}s`
-              }}
+              data-link={link.id}
               aria-hidden="true"
             />
           ))}

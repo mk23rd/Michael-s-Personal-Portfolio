@@ -110,6 +110,8 @@ async function openHome(page, theme = "light") {
   await page.evaluate((t) => localStorage.setItem("theme", t), theme);
   await page.reload({ waitUntil: "networkidle0" });
   await page.evaluate(() => document.fonts.ready);
+  // The sections below the fold mount one at a time after the first paint; the footer is the last of them.
+  await page.waitForSelector("footer", { timeout: 5000 });
   // Programmatic scrollIntoView + smooth scrolling makes element positions stale mid-flight.
   await page.evaluate(() => (document.documentElement.style.scrollBehavior = "auto"));
 }
@@ -249,7 +251,7 @@ async function interactions(browser) {
     .then(() => true)
     .catch(() => false);
   if (!unstacked) fail("deck still stacked after load");
-  await page.hover(".deck-card[aria-label^='Lawata']");
+  await page.hover(".deck-card[href='#lawata']");
   await sleep(800);
   await shot(page, "ix-deck-hover");
 
@@ -513,7 +515,7 @@ async function boot(browser) {
   if (await page.waitForSelector(".boot", { timeout: 8000 }).catch(() => null)) {
     // The skip listeners attach in an effect after the first paint; a human can't click before that.
     await sleep(250);
-    const before = await page.$eval(".boot", (el) => el.className);
+    const before = await page.$eval(".boot", (el) => el.className).catch(() => "(gone)");
     await page.mouse.click(720, 450);
     await sleep(120);
     const skipped = await page
@@ -522,18 +524,34 @@ async function boot(browser) {
     const bootVar = await page.evaluate(() => document.documentElement.style.getPropertyValue("--boot").trim());
     if (before !== "boot") note(`boot had already reached "${before}" before the skip click`);
     else if (!skipped || bootVar !== "0ms") fail(`boot skip (skipped=${skipped}, --boot="${bootVar}")`);
+  } else if ((await page.evaluate(() => sessionStorage.getItem("boot-seen"))) === "1") {
+    note("boot was over before the skip check could click; skipped");
   } else fail("boot overlay never mounted for the skip check");
   await page.close();
 
-  // No boot under reduced motion, or when arriving on a deep link.
+  // No boot under reduced motion, on a phone, or when arriving on a deep link.
   page = await newPage(browser, 1440, 900, { boot: true, reducedMotion: true });
   await page.goto(BASE + "/", { waitUntil: "networkidle0" });
   if (await page.$(".boot")) fail("boot ran under reduced motion");
   if (await page.evaluate(() => document.documentElement.classList.contains("is-booting"))) fail("is-booting set under reduced motion");
   await page.close();
+  page = await newPage(browser, 390, 844, { boot: true });
+  await page.goto(BASE + "/", { waitUntil: "networkidle0" });
+  if (await page.$(".boot")) fail("boot ran on a phone-sized screen");
+  // Without a boot the hero still rises, just without the hold; give it a moment to finish.
+  await sleep(1600);
+  const phone = await page.evaluate(() => ({
+    hero: getComputedStyle(document.querySelector("h1 .rise")).opacity,
+    bootVar: document.documentElement.style.getPropertyValue("--boot")
+  }));
+  if (phone.hero !== "1" || phone.bootVar !== "") fail(`phone hero state without boot: ${JSON.stringify(phone)}`);
+  await page.close();
   page = await newPage(browser, 1440, 900, { boot: true });
   await page.goto(BASE + "/#contact", { waitUntil: "networkidle0" });
   if (await page.$(".boot")) fail("boot ran on a deep link");
+  // A deep link mounts every section at once, so the browser has the target to scroll to.
+  const deepLink = await page.evaluate(() => ({ contact: !!document.getElementById("contact"), scrollY: window.scrollY }));
+  if (!deepLink.contact || deepLink.scrollY < 200) fail(`deep link did not land on the section: ${JSON.stringify(deepLink)}`);
   await page.close();
   note("boot ok");
 }
@@ -651,10 +669,12 @@ async function features(browser) {
     nodes: document.querySelectorAll(".flow .flow-node").length,
     links: document.querySelectorAll(".flow-link").length,
     packets: document.querySelectorAll(".flow-packet").length,
+    // Each packet rides its link on a running transform animation (Web Animations, not offset-path).
+    riding: [...document.querySelectorAll(".flow-packet")].filter((p) => p.getAnimations().some((a) => a.playState === "running")).length,
     core: !!document.querySelector(".flow-core"),
     caption: document.querySelector(".flow-caption").textContent
   }));
-  if (flow.nodes < 5 || flow.links < 4 || flow.packets !== flow.links || !flow.core || !/Hover or tap/.test(flow.caption))
+  if (flow.nodes < 5 || flow.links < 4 || flow.packets !== flow.links || flow.riding !== flow.packets || !flow.core || !/Hover or tap/.test(flow.caption))
     fail(`flow board: ${JSON.stringify(flow)}`);
   const firstNode = await page.$(".flow [data-node='sources'] .flow-node");
   // Approach the node from outside, the way a hand does; parking on it after a scroll fires no enter event.

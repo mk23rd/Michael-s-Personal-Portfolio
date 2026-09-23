@@ -82,7 +82,6 @@ const CardDeck = () => {
                   "--card-brand": project.brand,
                   "--card-ink": project.ink
                 })}
-                aria-label={`${project.title}: ${project.summary}`}
                 data-cursor="View"
               >
                 <div className={cn("flex h-full flex-col p-4 sm:p-5", i > 0 && "items-end text-right")}>
@@ -93,6 +92,8 @@ const CardDeck = () => {
                   >
                     {project.title}
                   </p>
+                  {/* Part of the link's name for assistive tech, so the visible text still matches it. */}
+                  <span className="sr-only">: {project.summary}</span>
                 </div>
                 <ProjectArtwork project={project} variant="deck" loading="eager" />
               </a>

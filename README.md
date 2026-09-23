@@ -41,7 +41,7 @@ src/
     Navigation.tsx          Floating pill nav, sliding active indicator, palette trigger, burger → full-screen menu
     Hero.tsx                Word-by-word headline reveal, magnetic CTAs, live status readout
     StatusLine.tsx          Cycling status line with a left-to-right decode sweep
-    Boot.tsx                First-visit boot log; any click, key or scroll skips it
+    Boot.tsx                First-visit boot log on desktop-sized screens; any click, key or scroll skips it
     CommandPalette.tsx      Ctrl/⌘ K dialog: jump to sections and projects, actions, shell-style commands
     Cursor.tsx              Dot + lagging ring cursor for fine pointers; labels via data-cursor="…"
     CardDeck.tsx            Fanned, pointer-tilting project deck (stacks on small screens)
@@ -56,14 +56,15 @@ src/
     Faq.tsx                 Accessible accordion (button + region, aria-expanded, data-state)
     Contact.tsx             Netlify-backed form with inline validation and status messages
     Footer.tsx              Giant wordmark, socials, CV link, back-to-top
+    Deferred.tsx            Mounts the sections below the fold one at a time after the first paint
     SectionHeading.tsx, Magnetic.tsx, RotatingBadge.tsx, ThemeToggle.tsx
   hooks/
-    use-reveal.ts           IntersectionObserver that adds .is-visible to every [data-reveal]
+    use-reveal.ts           Adds .is-visible to every [data-reveal] as it scrolls into view, including ones mounted later
     use-active-section.ts   Tracks which section is in view for the nav indicator
     use-local-time.ts       Ticking clock for a given IANA time zone
     use-reduced-motion.ts   Live prefers-reduced-motion media query
   lib/
-    boot.ts                 Boot state: runs once per tab session, never on deep links or reduced motion
+    boot.ts                 Boot state: once per tab session on desktop-sized screens, never on deep links or reduced motion
     images.ts               Imports every image rendition and groups them by name, format and width
     palette.ts              Tiny event bus so any component can open the palette
   context/theme-context.tsx Light/dark theme, persisted to localStorage, syncs with the OS
@@ -114,6 +115,13 @@ The form posts to Netlify Forms (`name="contact"`, hidden `form-name` field, `bo
 - The boot log and the cursor are `aria-hidden`; the hero status line exposes only the plain availability text to assistive tech.
 - Scroll reveals, the marquee, the deck tilt, magnetic buttons, the rotating badge, the boot log, the status decode, the pipeline packets and the custom cursor are all disabled under `prefers-reduced-motion`. Touch devices keep the native cursor.
 - Colours meet WCAG AA contrast in both themes; the smoke suite runs axe-core on every build to keep it that way.
+
+## Performance
+
+- Fonts are self-hosted WOFF2 subsets with `size-adjust`ed fallbacks; images ship as AVIF/WebP/JPEG renditions at several widths.
+- The hero and the tool strip render first; the sections below the fold mount one at a time afterwards (`Deferred.tsx`), so no single task has to build and lay out the whole page. Deep links, reloads and back/forward navigations mount everything at once so the browser can restore the scroll position.
+- Everything that moves continuously (pipeline packets, the rotating badge, the marquee) animates `transform`/`opacity` only, so the page is idle on the main thread while it sits there.
+- The boot log only plays on desktop-sized screens, where the wait is short relative to the moment; phones get the hero straight away.
 
 ## License
 
