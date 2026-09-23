@@ -7,11 +7,11 @@
 // Needs a Chromium-based browser: set PUPPETEER_EXECUTABLE_PATH, or let the script find
 // Edge/Chrome in its usual place. Screenshots land in test-results/smoke.
 import fs from "node:fs";
-import os from "node:os";
 import path from "node:path";
 import { parseArgs } from "node:util";
 import { createRequire } from "node:module";
 import puppeteer from "puppeteer-core";
+import { findBrowser } from "./browser.mjs";
 
 const { values: args } = parseArgs({
   options: {
@@ -35,31 +35,6 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const shot = (page, name) => page.screenshot({ path: path.join(OUT, `${name}.png`) });
 
 let BASE = "";
-
-function findBrowser() {
-  const fromEnv = process.env.PUPPETEER_EXECUTABLE_PATH || process.env.CHROME_PATH;
-  if (fromEnv) return fromEnv;
-  const onPath = ["google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "microsoft-edge"].flatMap((bin) =>
-    (process.env.PATH ?? "").split(path.delimiter).map((dir) => path.join(dir, bin))
-  );
-  const candidates = {
-    win32: [
-      "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
-      "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
-      "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-      "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-      path.join(process.env.LOCALAPPDATA ?? "", "Google\\Chrome\\Application\\chrome.exe")
-    ],
-    linux: ["/usr/bin/google-chrome", "/usr/bin/google-chrome-stable", "/usr/bin/chromium", "/usr/bin/chromium-browser", "/usr/bin/microsoft-edge"],
-    darwin: [
-      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
-      "/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge"
-    ]
-  }[os.platform()] ?? [];
-  const found = [...candidates, ...onPath].find((p) => p && fs.existsSync(p));
-  if (!found) throw new Error("No Chromium-based browser found; set PUPPETEER_EXECUTABLE_PATH");
-  return found;
-}
 
 async function startPreview(port) {
   if (!fs.existsSync(path.resolve("dist/index.html"))) throw new Error("dist/ is missing; run `npm run build` first");
@@ -187,7 +162,17 @@ async function securityHeaders(browser) {
     if (!fonts.includes(family)) fail(`font "${family}" not loaded (loaded: ${fonts.join(", ")})`);
   }
   if (foreign.size) fail(`third-party requests: ${[...foreign].join(", ")}`);
-  note(`${Object.keys(expected).length} headers ok, assets immutable, fonts loaded, no third-party requests`);
+
+  // Every icon the page declares must exist, as must /favicon.ico, which browsers fetch on their own.
+  const icons = await page.$$eval("link[rel='icon'], link[rel='apple-touch-icon']", (links) => links.map((l) => l.href));
+  for (const url of new Set([...icons, BASE + "/favicon.ico"])) {
+    const icon = await page.evaluate(async (u) => {
+      const r = await fetch(u);
+      return { status: r.status, type: r.headers.get("content-type") || "" };
+    }, url);
+    if (icon.status !== 200 || !/^image\//.test(icon.type)) fail(`icon ${url}: ${icon.status} ${icon.type}`);
+  }
+  note(`${Object.keys(expected).length} headers ok, assets immutable, fonts loaded, ${icons.length} icons served, no third-party requests`);
   await page.close();
 }
 
