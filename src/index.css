@@ -493,13 +493,7 @@
     width: var(--card-w);
     height: var(--card-h);
     margin-left: calc(var(--card-w) / -2);
-    border-radius: 1.25rem;
-    overflow: hidden;
     color: var(--card-ink);
-    background: var(--card-brand);
-    box-shadow:
-      0 1px 2px rgb(0 0 0 / 0.08),
-      0 24px 48px -20px rgb(0 0 0 / 0.35);
     transform-origin: 50% 120%;
     transform:
       translateX(calc(var(--i) * var(--fan-x) + var(--mx) * var(--i) * 6px))
@@ -507,27 +501,51 @@
       rotate(calc(var(--i) * var(--fan-rot)));
     transition:
       transform 700ms var(--ease-soft),
-      box-shadow 400ms,
       opacity 600ms;
     will-change: transform;
     text-decoration: none;
     cursor: pointer;
   }
 
+  /* The card's visible box. The hover pop happens here, inside the link, so the link's hit area
+     keeps the resting fan pose: a card that straightened up out from under the pointer used to
+     lose :hover, snap back, regain it, and jitter in a loop at its edges. */
+  .deck-card-body {
+    position: relative;
+    height: 100%;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    background: var(--card-brand);
+    box-shadow:
+      0 1px 2px rgb(0 0 0 / 0.08),
+      0 24px 48px -20px rgb(0 0 0 / 0.35);
+    transform-origin: 50% 120%;
+    transition:
+      transform 700ms var(--ease-soft),
+      box-shadow 400ms;
+    will-change: transform;
+  }
+
   .deck-card:hover,
   .deck-card:focus-visible {
+    z-index: 10;
+    outline: none;
+  }
+
+  /* Counter-rotate and lift against the fan pose: the card lands exactly where
+     translateY(-1.25rem) rotate(0) scale(1.04) on the link itself used to put it. */
+  .deck-card:hover .deck-card-body,
+  .deck-card:focus-visible .deck-card-body {
     transform:
-      translateX(calc(var(--i) * var(--fan-x) + var(--mx) * var(--i) * 6px))
-      translateY(-1.25rem)
-      rotate(0deg)
+      rotate(calc(var(--i) * var(--fan-rot) * -1))
+      translateY(calc(-1.25rem - var(--i) * var(--i) * var(--fan-y)))
       scale(1.04);
     box-shadow:
       0 1px 2px rgb(0 0 0 / 0.1),
       0 40px 70px -24px rgb(0 0 0 / 0.45);
-    z-index: 10;
   }
 
-  .deck-card:focus-visible {
+  .deck-card:focus-visible .deck-card-body {
     outline: 3px solid hsl(var(--background));
     outline-offset: -6px;
   }
