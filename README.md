@@ -107,6 +107,25 @@ It uses `puppeteer-core`, so it needs a browser that is already installed: Edge 
 
 The same suite runs in GitHub Actions (`.github/workflows/ci.yml`) on every pull request and push to `main`, after typecheck, lint and build; the screenshots are uploaded as an artifact. Dependabot opens grouped weekly updates for npm and the workflow's actions.
 
+### Lighthouse budgets
+
+`.github/workflows/lighthouse.yml` builds the site and runs [Lighthouse CI](https://github.com/GoogleChrome/lighthouse-ci) (`npx @lhci/cli autorun`) on every pull request and push to `main`. `lighthouserc.json` starts `vite preview` on port 4173, so the audit runs under the same `'self'`-only CSP as production, audits `/` three times (desktop preset) and asserts the median scores:
+
+| Category       | Budget | Level |
+| -------------- | ------ | ----- |
+| Performance    | ≥ 0.9  | warn  |
+| Accessibility  | = 1    | error |
+| Best practices | ≥ 0.95 | error |
+| SEO            | ≥ 0.95 | error |
+
+The HTML/JSON reports are uploaded as the `lighthouse-report` artifact. To run it locally: `npm run build && npx @lhci/cli@0.15.x autorun` (set `CHROME_PATH` if Chrome isn't found); reports land in `lhci-report/`.
+
+### Other checks
+
+- **CodeQL** (`.github/workflows/codeql.yml`) scans the JavaScript/TypeScript with the `security-and-quality` queries on pushes to `main`, pull requests and weekly; findings show up under the repository's Security tab.
+- **Labeler** (`.github/workflows/labeler.yml`, rules in `.github/labeler.yml`) labels pull requests by the files they touch (`documentation`, `github_actions`, `dependencies`, `javascript`) and by branch prefix (`feat…` → `enhancement`, `fix…` → `bug`).
+- Issue forms (`.github/ISSUE_TEMPLATE/`) cover bugs and feature/content requests, and the pull request template carries the typecheck / lint / build / smoke / Lighthouse checklist.
+
 ## Hosting
 
 Netlify builds with `npm run build` and publishes `dist/` (see `netlify.toml`). `public/_headers` sets a `'self'`-only Content-Security-Policy, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` and `nosniff` on every response, and a one-year immutable cache on the hashed files under `/assets/`. There is no catch-all rewrite: unknown paths are served `dist/404.html` (a copy of `index.html`, which renders the not-found view) with a genuine 404 status. `vite preview` replays the same header rules so the smoke suite exercises the real policy.
