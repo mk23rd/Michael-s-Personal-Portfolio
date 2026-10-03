@@ -51,6 +51,14 @@
     /* The one warm accent: the marker the hand-made touches (scribble, stamp, calendar leaf) are drawn in. */
     --marker: 12 80% 40%;
     --marker-foreground: 0 0% 100%;
+
+    /* Code panels inside the project cards, and the ground behind screenshots. */
+    --term: 40 20% 97%;
+    --term-foreground: 0 0% 12%;
+    --term-dim: 0 0% 42%;
+    --term-hi: 32 95% 30%;
+    --term-ok: 140 65% 26%;
+    --shot: 0 0% 100%;
   }
 
   .dark {
@@ -93,6 +101,13 @@
 
     --marker: 14 90% 62%;
     --marker-foreground: 0 0% 6%;
+
+    --term: 0 0% 5%;
+    --term-foreground: 0 0% 91%;
+    --term-dim: 0 0% 54%;
+    --term-hi: 42 100% 70%;
+    --term-ok: 128 60% 69%;
+    --shot: 0 0% 14%;
   }
 
   * {
@@ -552,7 +567,7 @@
     aspect-ratio: 16 / 11;
     border-radius: 0.6rem 0 0 0;
     overflow: hidden;
-    background: rgb(255 255 255 / 0.92);
+    background: hsl(var(--shot));
     box-shadow: 0 14px 30px -10px rgb(0 0 0 / 0.5);
   }
 
@@ -571,8 +586,8 @@
   }
 
   .deck-card-shot.is-panel {
-    background: #0c0c0c;
-    color: #e8e8e8;
+    background: hsl(var(--term));
+    color: hsl(var(--term-foreground));
     font-family: theme("fontFamily.mono");
     font-size: clamp(0.5rem, 0.4rem + 0.35vw, 0.68rem);
     line-height: 1.6;
@@ -703,8 +718,8 @@
   }
 
   .work-panel {
-    background: #0c0c0c;
-    color: #e8e8e8;
+    background: hsl(var(--term));
+    color: hsl(var(--term-foreground));
     font-family: theme("fontFamily.mono");
     font-size: clamp(0.7rem, 0.55rem + 0.5vw, 0.9rem);
     line-height: 1.6;
@@ -713,16 +728,45 @@
     overflow: hidden;
   }
 
-  .work-panel .dim {
-    color: #8a8a8a;
+  .work-panel .dim,
+  .deck-card-shot .dim {
+    color: hsl(var(--term-dim));
   }
 
-  .work-panel .hi {
-    color: #ffd166;
+  .work-panel .hi,
+  .deck-card-shot .hi {
+    color: hsl(var(--term-hi));
   }
 
-  .work-panel .ok {
-    color: #7ee08a;
+  .work-panel .ok,
+  .deck-card-shot .ok {
+    color: hsl(var(--term-ok));
+  }
+
+  /* In dark mode the brand colours step down to tinted wells with brand-tinted type, so the cards sit in
+     the page instead of glowing off it; screenshots dim a touch for the same reason. */
+  .dark .deck-card,
+  .dark .work-media {
+    background: color-mix(in oklab, var(--card-brand) 28%, hsl(var(--card)));
+    color: color-mix(in oklab, var(--card-brand) 40%, white);
+  }
+
+  .dark .deck-card {
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, var(--card-brand) 45%, transparent),
+      0 24px 48px -20px rgb(0 0 0 / 0.6);
+  }
+
+  .dark .deck-card:hover,
+  .dark .deck-card:focus-visible {
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, var(--card-brand) 70%, transparent),
+      0 40px 70px -24px rgb(0 0 0 / 0.7);
+  }
+
+  .dark .deck-card img,
+  .dark .work-media img {
+    filter: brightness(0.86);
   }
 
   /* Artwork on a white ground (rather than a screenshot) keeps its own proportions and sits on the floor of the well. */
@@ -734,6 +778,7 @@
     aspect-ratio: auto;
     object-fit: contain;
     background: #ffffff;
+    /* Artwork drawn for a white ground keeps it in both themes. */
     padding: 3% 4% 0;
     border-radius: 0.75rem 0.75rem 0 0;
     transform: translateY(6%);
