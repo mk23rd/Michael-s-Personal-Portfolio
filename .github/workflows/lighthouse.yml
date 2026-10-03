@@ -1,0 +1,46 @@
+name: Lighthouse
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lighthouse-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lighthouse:
+    name: Lighthouse budgets
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+      # lighthouserc.json starts `vite preview` on port 4173 (which replays public/_headers,
+      # so the audit runs under the production CSP), audits it with the runner's Chrome and
+      # asserts the category budgets. Reports are written to lhci-report/.
+      - name: Run Lighthouse CI
+        run: |
+          export CHROME_PATH="$(command -v google-chrome || command -v google-chrome-stable)"
+          npx --yes @lhci/cli@0.15.x autorun
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lighthouse-report
+          path: lhci-report
+          retention-days: 14
