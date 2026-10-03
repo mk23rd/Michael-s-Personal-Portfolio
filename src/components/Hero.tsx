@@ -1,7 +1,9 @@
 import { Fragment } from "react";
 import { ArrowDown, Download } from "lucide-react";
 import { automation, automationMore, profile } from "@/data/portfolio";
+import { useEthiopianDate } from "@/hooks/use-ethiopian-date";
 import { useLocalTime } from "@/hooks/use-local-time";
+import { formatEthiopian } from "@/lib/ethiopian-calendar";
 import { vars } from "@/lib/utils";
 import CardDeck from "./CardDeck";
 import Magnetic from "./Magnetic";
@@ -13,12 +15,14 @@ const BREAK_AFTER = 2;
 
 const Hero = () => {
   const time = useLocalTime(profile.timeZone);
+  const today = useEthiopianDate(profile.timeZone);
   // The first line is the one assistive tech reads; the rest cycle through as a live readout.
   const status = [
     profile.status,
     `${time} in ${profile.city} · UTC+3`,
     `${automation.length + automationMore.length} automations in production at ${profile.employer}`,
-    "AWS Solutions Architect – Associate"
+    "AWS Solutions Architect – Associate",
+    `${formatEthiopian(today)} in ${profile.city}`
   ];
 
   return (
@@ -34,17 +38,46 @@ const Hero = () => {
           <StatusLine lines={status} className="whitespace-nowrap" />
         </p>
 
-        <h1 className="display h1 mt-6 max-w-[15ch] sm:max-w-[13ch]">
-          {HEADLINE.map((word, index) => (
-            <Fragment key={`${word}-${index}`}>
+        {/* Set like a dictionary entry: headword, pronunciation, part of speech, sense. */}
+        <p className="hello rise mt-7" style={vars({ "--d": "30ms" })}>
+          <span className="hello-head">
+            <span lang="am" className="hello-word">
+              ሰላም
+            </span>
+            <span className="hello-say">/se·lam/</span>
+          </span>
+          <span className="hello-def">
+            <i>Amharic</i> hello, and also peace. I'm {profile.name.split(" ")[0]}.
+          </span>
+        </p>
+
+        <h1 className="display h1 mt-5 max-w-[15ch] sm:max-w-[13ch]">
+          {HEADLINE.map((word, index) => {
+            const clipped = (
               <span className="clip">
                 <span className="rise" style={vars({ "--d": `${60 + index * 55}ms` })}>
                   {word}
                 </span>
               </span>
-              {index === BREAK_AFTER ? <br className="hidden sm:inline" /> : " "}
-            </Fragment>
-          ))}
+            );
+            return (
+              <Fragment key={`${word}-${index}`}>
+                {index === HEADLINE.length - 1 ? (
+                  // The last word gets a hand-drawn underline that inks itself in once the headline has landed.
+                  <span className="scribbled">
+                    {clipped}
+                    <svg className="scribble" viewBox="0 0 300 30" preserveAspectRatio="none" aria-hidden="true">
+                      <path pathLength={1} d="M6 19 C 64 9, 150 5, 294 11" />
+                      <path pathLength={1} d="M40 25 C 120 17, 210 16, 266 21" />
+                    </svg>
+                  </span>
+                ) : (
+                  clipped
+                )}
+                {index === BREAK_AFTER ? <br className="hidden sm:inline" /> : " "}
+              </Fragment>
+            );
+          })}
         </h1>
 
         <p className="lede rise mt-7 max-w-[40rem]" style={vars({ "--d": "420ms" })}>

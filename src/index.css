@@ -47,6 +47,18 @@
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-soft: cubic-bezier(0.2, 0.8, 0.2, 1);
     --header-height: 4.5rem;
+
+    /* The one warm accent: the marker the hand-made touches (scribble, stamp, calendar leaf) are drawn in. */
+    --marker: 12 80% 40%;
+    --marker-foreground: 0 0% 100%;
+
+    /* Code panels inside the project cards, and the ground behind screenshots. */
+    --term: 40 20% 97%;
+    --term-foreground: 0 0% 12%;
+    --term-dim: 0 0% 42%;
+    --term-hi: 32 95% 30%;
+    --term-ok: 140 65% 26%;
+    --shot: 0 0% 100%;
   }
 
   .dark {
@@ -86,6 +98,16 @@
     --sidebar-accent-foreground: 0 0% 96%;
     --sidebar-border: 0 0% 17%;
     --sidebar-ring: 0 0% 96%;
+
+    --marker: 14 90% 62%;
+    --marker-foreground: 0 0% 6%;
+
+    --term: 0 0% 5%;
+    --term-foreground: 0 0% 91%;
+    --term-dim: 0 0% 54%;
+    --term-hi: 42 100% 70%;
+    --term-ok: 128 60% 69%;
+    --shot: 0 0% 14%;
   }
 
   * {
@@ -545,7 +567,7 @@
     aspect-ratio: 16 / 11;
     border-radius: 0.6rem 0 0 0;
     overflow: hidden;
-    background: rgb(255 255 255 / 0.92);
+    background: hsl(var(--shot));
     box-shadow: 0 14px 30px -10px rgb(0 0 0 / 0.5);
   }
 
@@ -564,8 +586,8 @@
   }
 
   .deck-card-shot.is-panel {
-    background: #0c0c0c;
-    color: #e8e8e8;
+    background: hsl(var(--term));
+    color: hsl(var(--term-foreground));
     font-family: theme("fontFamily.mono");
     font-size: clamp(0.5rem, 0.4rem + 0.35vw, 0.68rem);
     line-height: 1.6;
@@ -696,8 +718,8 @@
   }
 
   .work-panel {
-    background: #0c0c0c;
-    color: #e8e8e8;
+    background: hsl(var(--term));
+    color: hsl(var(--term-foreground));
     font-family: theme("fontFamily.mono");
     font-size: clamp(0.7rem, 0.55rem + 0.5vw, 0.9rem);
     line-height: 1.6;
@@ -706,16 +728,45 @@
     overflow: hidden;
   }
 
-  .work-panel .dim {
-    color: #8a8a8a;
+  .work-panel .dim,
+  .deck-card-shot .dim {
+    color: hsl(var(--term-dim));
   }
 
-  .work-panel .hi {
-    color: #ffd166;
+  .work-panel .hi,
+  .deck-card-shot .hi {
+    color: hsl(var(--term-hi));
   }
 
-  .work-panel .ok {
-    color: #7ee08a;
+  .work-panel .ok,
+  .deck-card-shot .ok {
+    color: hsl(var(--term-ok));
+  }
+
+  /* In dark mode the brand colours step down to tinted wells with brand-tinted type, so the cards sit in
+     the page instead of glowing off it; screenshots dim a touch for the same reason. */
+  .dark .deck-card,
+  .dark .work-media {
+    background: color-mix(in oklab, var(--card-brand) 28%, hsl(var(--card)));
+    color: color-mix(in oklab, var(--card-brand) 40%, white);
+  }
+
+  .dark .deck-card {
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, var(--card-brand) 45%, transparent),
+      0 24px 48px -20px rgb(0 0 0 / 0.6);
+  }
+
+  .dark .deck-card:hover,
+  .dark .deck-card:focus-visible {
+    box-shadow:
+      inset 0 0 0 1px color-mix(in oklab, var(--card-brand) 70%, transparent),
+      0 40px 70px -24px rgb(0 0 0 / 0.7);
+  }
+
+  .dark .deck-card img,
+  .dark .work-media img {
+    filter: brightness(0.86);
   }
 
   /* Artwork on a white ground (rather than a screenshot) keeps its own proportions and sits on the floor of the well. */
@@ -727,6 +778,7 @@
     aspect-ratio: auto;
     object-fit: contain;
     background: #ffffff;
+    /* Artwork drawn for a white ground keeps it in both themes. */
     padding: 3% 4% 0;
     border-radius: 0.75rem 0.75rem 0 0;
     transform: translateY(6%);
@@ -1924,6 +1976,484 @@
     letter-spacing: 0.04em;
     color: hsl(var(--muted-foreground));
     animation: boot-line 400ms var(--ease-out-expo) 600ms both;
+  }
+}
+
+/* Personal touches: the bilingual hello, the hand-drawn marks, the /now notebook and calendar leaf,
+   the signature and stamp, the visitor's time note and the colophon. */
+@layer components {
+  /* The greeting, set like a dictionary entry rather than a badge. */
+  .hello {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    column-gap: 1rem;
+    row-gap: 0.25rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .hello-head {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.625rem;
+  }
+
+  .hello-word {
+    font-family: theme("fontFamily.display");
+    font-size: 1.75rem;
+    line-height: 1;
+    color: hsl(var(--marker));
+  }
+
+  .hello-say {
+    font-family: theme("fontFamily.mono");
+    font-size: 0.8125rem;
+    letter-spacing: 0.02em;
+  }
+
+  .hello-def {
+    font-size: 0.9375rem;
+  }
+
+  .hello-def i {
+    font-size: 0.875rem;
+    color: hsl(var(--foreground));
+  }
+
+  @media (min-width: 40rem) {
+    .hello-def {
+      padding-left: 1rem;
+      border-left: 1px solid hsl(var(--border));
+    }
+  }
+
+  .scribbled {
+    position: relative;
+    display: inline-block;
+  }
+
+  .scribble {
+    position: absolute;
+    left: -3%;
+    bottom: -0.16em;
+    width: 106%;
+    height: 0.3em;
+    overflow: visible;
+    pointer-events: none;
+    fill: none;
+    stroke: hsl(var(--marker));
+    stroke-width: 3.5;
+    stroke-linecap: round;
+  }
+
+  .scribble path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: ink 650ms var(--ease-soft) forwards;
+    animation-delay: calc(1050ms + var(--boot, 0ms));
+  }
+
+  .scribble path + path {
+    animation-delay: calc(1450ms + var(--boot, 0ms));
+  }
+
+  @keyframes ink {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* /now: a dot-grid notebook page held on with a strip of tape. */
+  .notebook {
+    position: relative;
+    padding: clamp(1.75rem, 1rem + 3vw, 3rem) clamp(1.25rem, 0.75rem + 3vw, 3rem);
+    padding-left: clamp(2.5rem, 1.5rem + 4vw, 5rem);
+    border: 1px solid hsl(var(--border));
+    border-radius: 1.25rem;
+    background:
+      linear-gradient(
+          to right,
+          transparent calc(clamp(2.5rem, 1.5rem + 4vw, 5rem) - 1.25rem),
+          hsl(var(--marker) / 0.45) calc(clamp(2.5rem, 1.5rem + 4vw, 5rem) - 1.25rem),
+          hsl(var(--marker) / 0.45) calc(clamp(2.5rem, 1.5rem + 4vw, 5rem) - 1.25rem + 1px),
+          transparent calc(clamp(2.5rem, 1.5rem + 4vw, 5rem) - 1.25rem + 1px)
+        ),
+      radial-gradient(hsl(var(--foreground) / 0.12) 1px, transparent 1.2px) 0 0 / 20px 20px,
+      hsl(var(--card));
+  }
+
+  .tape {
+    position: absolute;
+    top: -0.85rem;
+    left: 50%;
+    width: 7.5rem;
+    height: 1.75rem;
+    transform: translateX(-50%) rotate(-3deg);
+    background: hsl(var(--foreground) / 0.07);
+    border-inline: 1px dashed hsl(var(--foreground) / 0.12);
+    backdrop-filter: blur(2px);
+  }
+
+  .notebook-row {
+    display: grid;
+    gap: 0.25rem;
+    padding-block: 1rem;
+    border-bottom: 1px dashed hsl(var(--border));
+  }
+
+  .notebook-row:last-child {
+    border-bottom: 0;
+  }
+
+  @media (min-width: 40rem) {
+    .notebook-row {
+      grid-template-columns: 9rem 1fr;
+      gap: 1.5rem;
+    }
+  }
+
+  .notebook-row dt {
+    padding-top: 0.2rem;
+    font-family: theme("fontFamily.mono");
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .notebook-row dd {
+    font-size: 1.0625rem;
+    text-wrap: pretty;
+  }
+
+  /* A tear-off leaf from a desk calendar, in the Ethiopian calendar. */
+  .leaf {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid hsl(var(--border));
+    border-radius: 1.25rem;
+    background: hsl(var(--card));
+    box-shadow:
+      0 1px 0 hsl(var(--border)),
+      0 6px 0 -3px hsl(var(--card)),
+      0 6px 0 -2px hsl(var(--border)),
+      0 30px 50px -30px rgb(0 0 0 / 0.35);
+    text-align: center;
+  }
+
+  .leaf-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1.25rem 1rem 1rem;
+    background: hsl(var(--marker));
+    color: hsl(var(--marker-foreground));
+    font-family: theme("fontFamily.display");
+    font-size: 1.25rem;
+    letter-spacing: -0.01em;
+  }
+
+  .leaf-head span + span {
+    font-size: 0.875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .leaf-day {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    font-family: theme("fontFamily.display");
+    font-size: clamp(6rem, 4rem + 6vw, 9rem);
+    font-weight: 520;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .leaf-year {
+    margin-top: 0.25rem;
+    font-family: theme("fontFamily.mono");
+    font-size: 0.8125rem;
+    letter-spacing: 0.1em;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .leaf-foot {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    margin-top: auto;
+    padding: 1.5rem 1rem 1.25rem;
+    border-top: 1px dashed hsl(var(--border));
+    margin-inline: 1.25rem;
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* Signature: the strokes ink in one after another once the block is revealed. */
+  .signature {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .signature-ink {
+    width: clamp(11rem, 9rem + 6vw, 14rem);
+    height: auto;
+    overflow: visible;
+    fill: none;
+    stroke: hsl(var(--foreground));
+    stroke-width: 2.25;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .signature-ink path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset 900ms var(--ease-soft);
+    transition-delay: calc(300ms + var(--i, 0) * 650ms);
+  }
+
+  .signature-ink path:nth-child(2) {
+    transition-duration: 1600ms;
+  }
+
+  .signature.is-visible .signature-ink path {
+    stroke-dashoffset: 0;
+  }
+
+  .stamp {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.375rem 0.75rem 0.5rem;
+    border: 2px solid hsl(var(--marker));
+    border-radius: 0.625rem;
+    color: hsl(var(--marker));
+    /* Hidden with visibility, not opacity, so it is never half-faded (and never fails a contrast check). */
+    transform: rotate(-8deg) scale(1.4);
+    visibility: hidden;
+    transition:
+      transform 380ms cubic-bezier(0.3, 1.6, 0.5, 1),
+      visibility 0s;
+    transition-delay: 2.6s;
+  }
+
+  .signature.is-visible .stamp {
+    transform: rotate(-8deg);
+    visibility: visible;
+  }
+
+  .stamp-name {
+    font-family: theme("fontFamily.display");
+    font-size: 1.375rem;
+    line-height: 1.2;
+  }
+
+  .stamp-meta {
+    white-space: nowrap;
+    font-family: theme("fontFamily.mono");
+    font-size: 0.625rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scribble path,
+    .signature-ink path {
+      animation: none;
+      transition: none;
+      stroke-dashoffset: 0;
+    }
+    .stamp {
+      transition: none;
+      transform: rotate(-8deg);
+      visibility: visible;
+    }
+  }
+
+  /* Contact: both working days on one 24-hour ruler, drawn in the visitor's local time. */
+  .tz {
+    margin-top: 2rem;
+    padding: 1.25rem 1.25rem 1.125rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: 1rem;
+  }
+
+  .tz-clocks {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .tz-clocks p {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .tz-clocks p + p {
+    text-align: right;
+  }
+
+  .tz-label {
+    font-family: theme("fontFamily.mono");
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .tz-time {
+    font-family: theme("fontFamily.display");
+    font-size: 1.75rem;
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tz-ruler {
+    display: grid;
+    grid-template-columns: 2.25rem 1fr;
+    grid-template-rows: auto auto auto;
+    align-items: center;
+    row-gap: 0.5rem;
+    margin-top: 1.25rem;
+  }
+
+  .tz-ruler > :nth-child(-n + 2) {
+    grid-row: 1;
+  }
+
+  .tz-ruler > :nth-child(3),
+  .tz-ruler > :nth-child(4) {
+    grid-row: 2;
+  }
+
+  .tz-name {
+    grid-column: 1;
+    font-family: theme("fontFamily.mono");
+    font-size: 0.6875rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .tz-track {
+    grid-column: 2;
+    position: relative;
+    height: 0.75rem;
+    border-radius: 999px;
+    background: repeating-linear-gradient(
+        to right,
+        transparent 0 calc(100% / 24 - 1px),
+        hsl(var(--background)) calc(100% / 24 - 1px) calc(100% / 24)
+      ),
+      hsl(var(--muted));
+  }
+
+  .tz-band {
+    position: absolute;
+    inset-block: 0;
+    left: var(--x);
+    width: var(--w);
+    border-radius: 999px;
+  }
+
+  .tz-band-me {
+    background: hsl(var(--marker));
+  }
+
+  .tz-band-you {
+    background: hsl(var(--foreground) / 0.6);
+  }
+
+  .tz-overlay {
+    position: relative;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: stretch;
+    margin-block: -0.375rem;
+    pointer-events: none;
+  }
+
+  .tz-shared {
+    position: absolute;
+    inset-block: 0;
+    left: var(--x);
+    width: var(--w);
+    border-inline: 1px dashed hsl(var(--marker) / 0.7);
+    background: hsl(var(--marker) / 0.08);
+  }
+
+  .tz-now {
+    position: absolute;
+    inset-block: -0.25rem;
+    left: var(--x);
+    width: 2px;
+    margin-left: -1px;
+    border-radius: 2px;
+    background: hsl(var(--foreground));
+  }
+
+  .tz-now::before {
+    content: "";
+    position: absolute;
+    top: -0.25rem;
+    left: 50%;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    background: hsl(var(--foreground));
+    box-shadow: 0 0 0 3px hsl(var(--background));
+  }
+
+  .tz-ticks {
+    position: relative;
+    grid-column: 2;
+    grid-row: 3;
+    height: 1rem;
+    font-family: theme("fontFamily.mono");
+    font-size: 0.625rem;
+    color: hsl(var(--muted-foreground));
+  }
+
+  .tz-ticks span {
+    position: absolute;
+    left: var(--x);
+    transform: translateX(-50%);
+  }
+
+  .tz-ticks span:first-child {
+    transform: none;
+  }
+
+  .tz-ticks span:last-child {
+    transform: translateX(-100%);
+  }
+
+  .tz-note {
+    margin-top: 0.75rem;
+    padding-top: 0.875rem;
+    border-top: 1px dashed hsl(var(--border));
+    font-size: 0.9375rem;
+    color: hsl(var(--muted-foreground));
+    text-wrap: pretty;
+  }
+
+  .tz-note strong {
+    font-weight: 600;
+    color: hsl(var(--foreground));
+  }
+
+  .colophon {
+    font-size: 0.8125rem;
+    color: hsl(var(--muted-foreground));
   }
 }
 

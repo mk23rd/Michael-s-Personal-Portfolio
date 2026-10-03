@@ -32,6 +32,8 @@ jobs:
 
       - run: npm run lint
 
+      - run: npm run test:unit
+
       - run: npm run build
 
       # Serves dist/ with `vite preview` (which replays public/_headers, so the CSP is enforced)

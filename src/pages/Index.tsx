@@ -11,6 +11,7 @@ import Faq from "@/components/Faq";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import Navigation from "@/components/Navigation";
+import Now from "@/components/Now";
 import Projects from "@/components/Projects";
 import Services from "@/components/Services";
 import StackStrip from "@/components/StackStrip";
@@ -52,13 +53,16 @@ const Index = () => {
           <About />
         </Deferred>
         <Deferred step={6}>
-          <Faq />
+          <Now />
         </Deferred>
         <Deferred step={7}>
+          <Faq />
+        </Deferred>
+        <Deferred step={8}>
           <Contact />
         </Deferred>
       </main>
-      <Deferred step={7} placeholder="0">
+      <Deferred step={8} placeholder="0">
         <Footer />
       </Deferred>
       <CommandPalette />

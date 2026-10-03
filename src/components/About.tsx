@@ -1,6 +1,8 @@
 import {
+  ArrowDownRight,
   BadgeCheck,
   Briefcase,
+  CalendarDays,
   Crosshair,
   GraduationCap,
   Handshake,
@@ -9,18 +11,29 @@ import {
 } from "lucide-react";
 import Picture from "@/components/Picture";
 import { profile } from "@/data/portfolio";
+import { useEthiopianDate } from "@/hooks/use-ethiopian-date";
 import { useLocalTime } from "@/hooks/use-local-time";
+import { formatEthiopian, formatEthiopianAmharic } from "@/lib/ethiopian-calendar";
 import { vars } from "@/lib/utils";
 import RotatingBadge from "./RotatingBadge";
+import Signature from "./Signature";
 
-type Fact = { term: string; detail: string; extra?: string; icon: LucideIcon };
+type Fact = { term: string; detail: string; extra?: string; extraLang?: string; icon: LucideIcon };
 
 const About = () => {
   const time = useLocalTime(profile.timeZone);
+  const today = useEthiopianDate(profile.timeZone);
 
   const facts: Fact[] = [
     { term: "Currently", detail: `${profile.role} at ${profile.employer}`, icon: Briefcase },
     { term: "Based in", detail: `${profile.city}, ${profile.country}`, extra: `${time} local`, icon: MapPin },
+    {
+      term: "Today there",
+      detail: formatEthiopian(today),
+      extra: formatEthiopianAmharic(today),
+      extraLang: "am",
+      icon: CalendarDays
+    },
     { term: "Focus", detail: "IT automation, AI-assisted operations, AWS and Microsoft 365", icon: Crosshair },
     { term: "Education", detail: "BSc Computer Science, HiLCoE, 2025", icon: GraduationCap },
     { term: "Certified", detail: "AWS Solutions Architect – Associate; Professional in progress", icon: BadgeCheck },
@@ -85,7 +98,7 @@ const About = () => {
                   <dd className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
                     <span>{fact.detail}</span>
                     {fact.extra && (
-                      <span className="label tabular-nums" aria-live="off">
+                      <span className="label tabular-nums" aria-live="off" lang={fact.extraLang}>
                         {fact.extra}
                       </span>
                     )}
@@ -94,6 +107,18 @@ const About = () => {
               );
             })}
           </dl>
+
+          <div className="mt-10 flex flex-wrap items-end justify-between gap-6">
+            <Signature />
+            <a href="#now" className="link-line group inline-flex items-center gap-1.5 text-sm">
+              What I'm up to now
+              <ArrowDownRight
+                size={14}
+                aria-hidden="true"
+                className="transition-transform duration-300 ease-out group-hover:translate-x-0.5 group-hover:translate-y-0.5"
+              />
+            </a>
+          </div>
         </div>
       </div>
     </section>
