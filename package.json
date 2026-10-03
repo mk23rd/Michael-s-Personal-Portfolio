@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "typecheck": "tsc -p tsconfig.app.json --noEmit && tsc -p tsconfig.node.json --noEmit",
+    "test:unit": "node --test --experimental-strip-types --no-warnings=ExperimentalWarning \"tests/**/*.test.ts\"",
     "test:smoke": "node scripts/smoke.mjs"
   },
   "dependencies": {
