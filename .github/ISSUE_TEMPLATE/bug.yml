@@ -1,0 +1,58 @@
+name: Bug report
+description: Something on the site is broken, looks wrong or fails a check.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to report this. The more precise the steps, the faster it gets fixed.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Describe the problem and what you expected to happen instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open https://…
+        2. Switch to dark mode
+        3. Click …
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Page or URL
+      placeholder: https://…/#projects
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      multiple: true
+      options:
+        - Chrome / Edge
+        - Firefox
+        - Safari (macOS)
+        - Safari (iOS)
+        - Other
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Layout / visuals
+        - Accessibility
+        - Performance
+        - Contact form
+        - Theme / motion
+        - Build / CI
+        - Other
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console output or screenshots
+      description: Paste console errors, CSP violations or drag in screenshots.

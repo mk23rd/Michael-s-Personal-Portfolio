@@ -1,0 +1,41 @@
+name: Feature or content change
+description: Propose a new feature, or new/updated content (projects, experience, copy).
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Type of change
+      options:
+        - New feature
+        - Content update (projects, experience, copy)
+        - Design / visual polish
+        - Tooling / CI
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: What should change?
+      description: Describe the feature or the content to add/update. For content, paste the exact text and links.
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Why?
+      description: What problem does this solve or what does it improve for visitors?
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - [ ] …
+        - [ ] Works in both themes and with reduced motion
+        - [ ] Smoke suite and Lighthouse budgets still pass
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Mockups, references, assets.
