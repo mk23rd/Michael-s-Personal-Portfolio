@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { ArrowUpRight, Check, Loader2, Mail, MapPin, Phone, Send, type LucideIcon } from "lucide-react";
 import { profile, socials } from "@/data/portfolio";
 import { cn } from "@/lib/utils";
+import TimeNote from "./TimeNote";
 
 type Status = { kind: "idle" } | { kind: "sending" } | { kind: "sent" } | { kind: "error"; message: string };
 
@@ -60,6 +61,7 @@ const Contact = () => {
               I read everything that comes in and reply within a day. If a form feels like too much, any of
               these work just as well.
             </p>
+            <TimeNote />
 
             <dl className="mt-8 border-t border-border">
               {channels.map((channel) => {
