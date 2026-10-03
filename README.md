@@ -30,20 +30,21 @@ netlify.toml                Build command, publish directory, Node version
 public/                     favicon (SVG, .ico, Apple touch icon), og-image.png, résumé PDF, theme.js, _headers (CSP, security and cache headers)
 scripts/
   browser.mjs               Finds the local Edge/Chrome for the scripts below
+  ethiopic.py               Subsets Noto Sans Ethiopic to the Amharic characters the site uses (run on demand)
   favicon.mjs               Regenerates favicon.ico and apple-touch-icon.png from favicon.svg (run on demand)
   images.mjs                Generates the AVIF/WebP renditions in src/assets/images (needs `sharp`, run on demand)
   marks.mjs                 Regenerates src/data/marks.ts, the brand marks in the tool strip (run on demand)
   smoke.mjs                 Headless-browser smoke suite run by CI (see "Testing")
 src/
-  assets/fonts, images      Self-hosted WOFF2 files; source JPEGs plus their generated renditions
+  assets/fonts, images      Self-hosted WOFF2 files (plus a Ge'ez subset of Noto Sans Ethiopic); source JPEGs plus their generated renditions
   fonts.css                 @font-face rules and metric-matched local fallbacks
   data/portfolio.ts         Single source of truth for all content (profile, nav, projects, stack,
-                            services, automation work, timeline, FAQ, socials)
+                            services, automation work, timeline, FAQ, socials, the /now notebook)
   data/marks.ts             Generated: one monochrome brand mark per stack item, with its hover tint
   index.css                 Design tokens (light/dark), typography scale, component classes, motion system
   components/
     Navigation.tsx          Floating pill nav, sliding active indicator, palette trigger, burger → full-screen menu
-    Hero.tsx                Word-by-word headline reveal, magnetic CTAs, live status readout
+    Hero.tsx                ሰላም greeting, word-by-word headline reveal with a hand-drawn underline, magnetic CTAs, live status readout
     StatusLine.tsx          Cycling status line with a left-to-right decode sweep
     Boot.tsx                First-visit boot log on desktop-sized screens; any click, key or scroll skips it
     CommandPalette.tsx      Ctrl/⌘ K dialog: jump to sections and projects, actions, shell-style commands
@@ -56,23 +57,29 @@ src/
     Flow.tsx                Live pipeline board: sources → runner → destinations, hover/tap to trace a route
     Services.tsx            What I do, with icon wells
     Timeline.tsx            Experience / education / certifications with filter chips
-    About.tsx               Portrait, rotating badge, facts list with live local time
+    About.tsx               Portrait, rotating badge, facts list with live local time and today's Ethiopian date, signature
+    Now.tsx                 /now: a notebook page of current focus beside a tear-off Ethiopian-calendar leaf
+    Signature.tsx           Hand-drawn signature that inks itself in, with a ሚካኤል rubber stamp
+    TimeNote.tsx            In Contact: the time in Addis relative to the visitor, and when to expect a reply
     Faq.tsx                 Accessible accordion (button + region, aria-expanded, data-state)
     Contact.tsx             Netlify-backed form with inline validation and status messages
-    Footer.tsx              Giant wordmark, socials, CV link, back-to-top
+    Footer.tsx              Giant wordmark, socials, CV link, back-to-top, colophon
     Deferred.tsx            Mounts the sections below the fold one at a time after the first paint
     SectionHeading.tsx, Magnetic.tsx, RotatingBadge.tsx, ThemeToggle.tsx
   hooks/
     use-reveal.ts           Adds .is-visible to every [data-reveal] as it scrolls into view, including ones mounted later
     use-active-section.ts   Tracks which section is in view for the nav indicator
     use-local-time.ts       Ticking clock for a given IANA time zone
+    use-ethiopian-date.ts   Today's Ethiopian date in a given time zone, rechecked every few minutes
     use-reduced-motion.ts   Live prefers-reduced-motion media query
   lib/
+    ethiopian-calendar.ts   Gregorian → Ethiopian conversion and English/Amharic formatting
     boot.ts                 Boot state: once per tab session on desktop-sized screens, never on deep links or reduced motion
     images.ts               Imports every image rendition and groups them by name, format and width
     palette.ts              Tiny event bus so any component can open the palette
   context/theme-context.tsx Light by default; a theme picked with the toggle is persisted to localStorage
   pages/Index.tsx, NotFound.tsx
+tests/                      Unit tests run with Node's built-in test runner
 ```
 
 ## Editing content
@@ -80,6 +87,10 @@ src/
 Everything shown on the page comes from `src/data/portfolio.ts`. Update the profile, add a project, reorder the nav, change a timeline entry or rewrite a FAQ answer there — no component changes needed. Replace `public/michael-wagaye-resume.pdf` to update the downloadable CV.
 
 To add or replace a screenshot, drop the JPEG in `src/assets/images`, run `npm install --no-save sharp && node scripts/images.mjs` to generate the AVIF/WebP renditions, add the original's intrinsic size to `src/lib/images.ts`, and reference the file's base name from `src/data/portfolio.ts`.
+
+The Now section reads from `now` in the same file: bump `updated` (an ISO date) whenever you change an entry.
+
+Amharic text (ሰላም, ሚካኤል, the month names…) is rendered with a subset of Noto Sans Ethiopic that holds only the characters the site uses. After adding or changing any Amharic, download `NotoSansEthiopic-SemiBold.ttf` from [notofonts](https://github.com/notofonts/notofonts.github.io/tree/main/fonts/NotoSansEthiopic/unhinted/ttf), run `pip install fonttools brotli` once, then `python scripts/ethiopic.py path/to/NotoSansEthiopic-SemiBold.ttf` to regenerate `src/assets/fonts/noto-sans-ethiopic-subset.woff2`.
 
 Design tokens (colours, radii, type scale, spacing, motion durations) live at the top of `src/index.css` as CSS custom properties, with a `.dark` override block.
 
@@ -96,12 +107,13 @@ npm run typecheck   # tsc --noEmit against tsconfig.app.json and tsconfig.node.j
 npm run lint        # ESLint (typescript-eslint, react-hooks, react-refresh)
 npm run build       # Production build to dist/ (also writes dist/404.html)
 npm run preview     # Serve dist/ locally, replaying the headers from public/_headers
+npm run test:unit   # Unit tests (Ethiopian calendar conversion) with node --test
 npm run test:smoke  # Headless-browser smoke suite against dist/ (see below)
 ```
 
 ## Testing
 
-`npm run test:smoke` builds nothing itself; run `npm run build` first. It starts `vite preview`, drives a headless Chromium through the site and fails on any console error, failed request, CSP violation or broken behaviour. It covers the security headers and cache policy, full-page screenshots in both themes at three widths, an axe-core pass (serious/critical violations fail), every interaction (nav, deck, theme toggle and light-by-default, tool strip marks, timeline filters, FAQ, contact form, responsive images), the mobile menu's focus trap, reduced motion, the 404 page, the boot sequence and the command palette, status line, cursor and pipeline board. Screenshots land in `test-results/smoke/`.
+`npm run test:smoke` builds nothing itself; run `npm run build` first. It starts `vite preview`, drives a headless Chromium through the site and fails on any console error, failed request, CSP violation or broken behaviour. It covers the security headers and cache policy, full-page screenshots in both themes at three widths, an axe-core pass (serious/critical violations fail), every interaction (nav, deck, theme toggle and light-by-default, tool strip marks, timeline filters, FAQ, contact form, responsive images), the mobile menu's focus trap, reduced motion, the 404 page, the boot sequence and the command palette, status line, cursor and pipeline board, and the personal touches (Amharic greeting and its font, the /now section and calendar leaf, the signature, the time note in two time zones, the `buna`/`selam`/`date` commands). Screenshots land in `test-results/smoke/`.
 
 It uses `puppeteer-core`, so it needs a browser that is already installed: Edge or Chrome are found automatically, or set `PUPPETEER_EXECUTABLE_PATH`. `--only accessibility,boot` runs a subset; `--base https://…` tests a deployed copy instead of the local build.
 

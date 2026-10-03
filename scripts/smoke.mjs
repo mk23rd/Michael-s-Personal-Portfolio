@@ -725,7 +725,7 @@ async function features(browser) {
   const sr = await page.$eval("section#top .sr-only", (el) => el.textContent);
   if (!/Open to new opportunities/.test(sr)) fail(`status sr-only text: "${sr}"`);
   const readStatus = () => page.$eval("section#top .sr-only + span", (el) => el.textContent);
-  const settled = (s) => /^(Open to new|\d\d:\d\d in Addis Ababa · UTC\+3$|\d+ automations in production|AWS Solutions Architect – Associate$)/.test(s);
+  const settled = (s) => /^(Open to new|\d\d:\d\d in Addis Ababa · UTC\+3$|\d+ automations in production|AWS Solutions Architect – Associate$|[A-Z][a-z]+ \d{1,2}, \d{4} E\.C\. in Addis Ababa$)/.test(s);
   let s0 = await readStatus();
   if (!settled(s0)) {
     // Caught it mid-decode; the sweep takes 620ms.
@@ -837,9 +837,85 @@ async function features(browser) {
   note("touch fallbacks ok");
 }
 
+async function personal(browser) {
+  console.log("Personal touches: greeting, calendar, /now, signature, time note, palette, colophon");
+  const page = await newPage(browser, 1440, 900);
+  await page.emulateTimezone("Europe/London");
+  await openHome(page);
+
+  const ethDate = /^(Meskerem|Tikimt|Hidar|Tahsas|Tir|Yekatit|Megabit|Miyazya|Ginbot|Sene|Hamle|Nehase|Pagume) \d{1,2}, \d{4} E\.C\.$/;
+  const hero = await page.evaluate(() => ({
+    am: document.querySelector("section#top .hello [lang=am]")?.textContent,
+    scribble: document.querySelectorAll("section#top .scribble path").length,
+    ethiopicFont: document.fonts.check('16px "Instrument Sans"', "ሰላም") && document.fonts.check('600 16px "Bricolage Grotesque"', "ሰላም"),
+    fontLoaded: [...document.fonts].some((f) => f.status === "loaded" && /U\+1200/i.test(f.unicodeRange))
+  }));
+  if (hero.am !== "ሰላም" || hero.scribble !== 2 || !hero.ethiopicFont || !hero.fontLoaded) fail(`hero greeting: ${JSON.stringify(hero)}`);
+
+  await page.evaluate(() => document.getElementById("now").scrollIntoView());
+  await sleep(1200);
+  const now = await page.evaluate(() => ({
+    rows: document.querySelectorAll("#now .notebook-row").length,
+    day: Number(document.querySelector("#now .leaf-day")?.textContent),
+    month: document.querySelector("#now .leaf-head [lang=am]")?.textContent,
+    full: document.querySelector("#now .leaf-year .sr-only")?.textContent,
+    updated: document.querySelector("#now time[datetime]")?.getAttribute("datetime")
+  }));
+  if (now.rows < 4 || !(now.day >= 1 && now.day <= 30) || !now.month || !ethDate.test(now.full ?? "") || !/^\d{4}-\d\d-\d\d$/.test(now.updated))
+    fail(`now section: ${JSON.stringify(now)}`);
+  await shot(page, "personal-now");
+
+  await page.evaluate(() => document.querySelector("#about .signature").scrollIntoView({ block: "center" }));
+  await sleep(3400);
+  const sig = await page.evaluate(() => {
+    const el = document.querySelector("#about .signature");
+    return {
+      label: el.getAttribute("aria-label"),
+      visible: el.classList.contains("is-visible"),
+      inked: [...el.querySelectorAll(".signature-ink path")].every((p) => parseFloat(getComputedStyle(p).strokeDashoffset) < 0.01),
+      stamp: getComputedStyle(el.querySelector(".stamp")).visibility === "visible"
+    };
+  });
+  if (!/Michael/.test(sig.label ?? "") || !sig.visible || !sig.inked || !sig.stamp) fail(`signature: ${JSON.stringify(sig)}`);
+  await shot(page, "personal-signature");
+
+  const timeNote = await page.$eval("[data-testid=time-note]", (el) => el.textContent).catch(() => "");
+  if (!/^It's \d\d:\d\d in Addis Ababa, \d+ hours? ahead of you\./.test(timeNote)) fail(`time note (London): "${timeNote}"`);
+
+  const colophon = await page.$eval("footer .colophon", (el) => el.textContent).catch(() => "");
+  if (!/ቡና/.test(colophon) || !/E\.C\. there\.$/.test(colophon)) fail(`colophon: "${colophon}"`);
+
+  for (const [cmd, expect] of [
+    ["buna", /abol/i],
+    ["selam", /ሰላም/],
+    ["date", /E\.C\./]
+  ]) {
+    await page.click("header .palette-trigger");
+    await sleep(300);
+    await page.type(".palette-input", cmd);
+    await page.keyboard.press("Enter");
+    await sleep(300);
+    const text = await page.$eval(".palette-response", (el) => el.textContent).catch(() => "");
+    if (!expect.test(text)) fail(`palette "${cmd}" response: "${text}"`);
+    if (cmd === "buna") await shot(page, "personal-palette-buna");
+    await page.keyboard.press("Escape");
+    await sleep(300);
+  }
+  await page.close();
+
+  // A visitor already on East Africa Time gets the neighbourly line instead of a time difference.
+  const local = await newPage(browser, 390, 844, { touch: true });
+  await local.emulateTimezone("Africa/Addis_Ababa");
+  await openHome(local);
+  const neighbour = await local.$eval("[data-testid=time-note]", (el) => el.textContent).catch(() => "");
+  if (!/same as where you are\. ሰላም, neighbour\./.test(neighbour)) fail(`time note (Addis): "${neighbour}"`);
+  await local.close();
+  note("personal touches ok");
+}
+
 (async () => {
   const started = Date.now();
-  const sections = { securityHeaders, fullPageShots, accessibility, interactions, mobileMenu, reducedMotion, notFound, boot, features };
+  const sections = { securityHeaders, fullPageShots, accessibility, interactions, mobileMenu, reducedMotion, notFound, boot, features, personal };
   const wanted = args.only ? args.only.split(",").map((s) => s.trim()) : Object.keys(sections);
   const unknown = wanted.filter((name) => !sections[name]);
   if (unknown.length) throw new Error(`unknown section(s) ${unknown.join(", ")}; choose from ${Object.keys(sections).join(", ")}`);
