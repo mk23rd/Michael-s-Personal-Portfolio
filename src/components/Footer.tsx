@@ -1,8 +1,11 @@
 import { ArrowUp, ArrowUpRight, FileText } from "lucide-react";
 import { profile, socials } from "@/data/portfolio";
+import { useEthiopianDate } from "@/hooks/use-ethiopian-date";
+import { formatEthiopian } from "@/lib/ethiopian-calendar";
 
 const Footer = () => {
   const year = new Date().getFullYear();
+  const today = useEthiopianDate(profile.timeZone);
 
   return (
     <footer className="border-t border-border pb-8 pt-16 md:pt-24">
@@ -67,6 +70,11 @@ const Footer = () => {
             </a>
           </div>
         </div>
+
+        <p className="colophon mt-10">
+          Designed and built by hand in {profile.city}, fuelled by <span lang="am">ቡና</span> (buna). Today is{" "}
+          {formatEthiopian(today)} there.
+        </p>
       </div>
     </footer>
   );

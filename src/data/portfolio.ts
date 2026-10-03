@@ -28,6 +28,8 @@ import type { ImageName } from "@/lib/images";
 
 export const profile = {
   name: "Michael Wagaye",
+  /** Michael, written in Ge'ez script. */
+  nameAm: "ሚካኤል",
   role: "AI Automation Developer & Cloud Engineer",
   employer: "MMCY",
   status: "Open to new opportunities",
@@ -496,6 +498,40 @@ export const timeline: TimelineEntry[] = [
     kind: "Education"
   }
 ];
+
+export type NowEntry = { term: string; detail: string };
+
+/**
+ * The /now panel (in the spirit of nownownow.com): what I'm focused on at the moment.
+ * Bump `updated` whenever an entry changes so the page never claims to be fresher than it is.
+ */
+export const now = {
+  updated: "2026-10-03",
+  entries: [
+    {
+      term: "Working on",
+      detail: `Taking repetitive IT operations off people's plates at MMCY: ${
+        automation.length + automationMore.length
+      } automations in production and counting.`
+    },
+    {
+      term: "Studying for",
+      detail: "AWS Certified Solutions Architect – Professional, one multi-account architecture at a time."
+    },
+    {
+      term: "Building",
+      detail: "This site, by hand: no UI kit, no third-party requests, and every animation switches off under reduced motion."
+    },
+    {
+      term: "Looking for",
+      detail: "The right next step in automation, cloud or platform engineering. Remote, in Addis Ababa, or relocating."
+    },
+    {
+      term: "Living in",
+      detail: "Addis Ababa, 2,355 metres up, where the calendar has thirteen months and coffee comes from."
+    }
+  ] satisfies NowEntry[]
+};
 
 export const faq = [
   {

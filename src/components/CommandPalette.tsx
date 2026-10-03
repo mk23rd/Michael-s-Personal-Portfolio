@@ -15,7 +15,9 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/context/theme-context";
 import { automation, automationMore, navigation, profile, projects, socials, timeline } from "@/data/portfolio";
+import { useEthiopianDate } from "@/hooks/use-ethiopian-date";
 import { useLocalTime } from "@/hooks/use-local-time";
+import { formatEthiopian, formatEthiopianAmharic } from "@/lib/ethiopian-calendar";
 import { cn } from "@/lib/utils";
 import { goTo, isApplePlatform, onPaletteOpen, openPalette } from "@/lib/palette";
 
@@ -70,6 +72,7 @@ const download = (href: string) => {
 const CommandPalette = () => {
   const { theme, toggleTheme } = useTheme();
   const time = useLocalTime(profile.timeZone);
+  const today = useEthiopianDate(profile.timeZone);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
@@ -94,6 +97,15 @@ const CommandPalette = () => {
       icon: Hash,
       run: go(entry.href)
     }));
+    sections.push({
+      id: "nav-#now",
+      label: "Now",
+      hint: "What I'm up to at the moment",
+      group: "Sections",
+      keywords: "go jump section #now current studying working on",
+      icon: Hash,
+      run: go("#now")
+    });
     const work: Item[] = projects.map((project) => ({
       id: `project-${project.id}`,
       label: project.title,
@@ -241,6 +253,37 @@ const CommandPalette = () => {
         }
       },
       {
+        name: "date",
+        about: "Today in both calendars",
+        test: (q) => q === "date" || q === "cal",
+        run: () => [
+          `Gregorian  ${new Intl.DateTimeFormat("en-GB", { timeZone: profile.timeZone, dateStyle: "full" }).format(new Date())}`,
+          `Ethiopian  ${formatEthiopian(today)} · ${formatEthiopianAmharic(today)}`,
+          "Yes, it really is a different year here: the Ethiopian calendar runs seven to eight years behind."
+        ]
+      },
+      {
+        name: "selam",
+        about: "Say hello in Amharic",
+        test: (q) => ["selam", "salam", "ሰላም", "hello", "hi"].includes(q),
+        run: () => [
+          "ሰላም (selam): hello, and also peace.",
+          `Same to you. It's ${time} in ${profile.city}; type buna if you have time for three cups.`
+        ]
+      },
+      {
+        name: "buna",
+        about: "Brew a cup the Ethiopian way",
+        test: (q) => ["buna", "coffee", "ቡና"].includes(q),
+        run: () => [
+          "Roasting green beans over charcoal; the smoke is part of the invitation.",
+          "Round 1 · abol: the first and strongest cup.",
+          "Round 2 · tona: brewed again from the same grounds.",
+          "Round 3 · bereka: the blessing. It's polite to stay for all three.",
+          "Coffee comes from Ethiopia. Write to me and we'll talk over a cup."
+        ]
+      },
+      {
         name: "clear",
         about: "Clear the screen",
         test: (q) => q === "clear" || q === "cls",
@@ -251,7 +294,7 @@ const CommandPalette = () => {
       }
     ];
     return list;
-  }, [time]);
+  }, [time, today]);
 
   const normalized = query.trim().toLowerCase();
   const command = normalized ? commands.find((entry) => entry.test(normalized)) : undefined;
@@ -506,7 +549,7 @@ const CommandPalette = () => {
           </p>
           <p className="hidden sm:block">
             Try
-            {["whoami", "uptime", "sudo hire michael"].map((sample) => (
+            {["whoami", "buna", "sudo hire michael"].map((sample) => (
               <button key={sample} type="button" className="palette-try" onClick={() => suggest(sample)}>
                 {sample}
               </button>
