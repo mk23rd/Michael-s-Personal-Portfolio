@@ -44,7 +44,7 @@ src/
   index.css                 Design tokens (light/dark), typography scale, component classes, motion system
   components/
     Navigation.tsx          Floating pill nav, sliding active indicator, palette trigger, burger → full-screen menu
-    Hero.tsx                ሰላም greeting, word-by-word headline reveal with a hand-drawn underline, magnetic CTAs, live status readout
+    Hero.tsx                ሰላም greeting set as a dictionary entry, word-by-word headline reveal with a hand-drawn underline, magnetic CTAs, live status readout
     StatusLine.tsx          Cycling status line with a left-to-right decode sweep
     Boot.tsx                First-visit boot log on desktop-sized screens; any click, key or scroll skips it
     CommandPalette.tsx      Ctrl/⌘ K dialog: jump to sections and projects, actions, shell-style commands
@@ -60,7 +60,7 @@ src/
     About.tsx               Portrait, rotating badge, facts list with live local time and today's Ethiopian date, signature
     Now.tsx                 /now: a notebook page of current focus beside a tear-off Ethiopian-calendar leaf
     Signature.tsx           Hand-drawn signature that inks itself in, with a ሚካኤል rubber stamp
-    TimeNote.tsx            In Contact: the time in Addis relative to the visitor, and when to expect a reply
+    TimeNote.tsx            In Contact: both clocks, my working day and the visitor's on one 24-hour ruler with the shared hours marked, and when to expect a reply
     Faq.tsx                 Accessible accordion (button + region, aria-expanded, data-state)
     Contact.tsx             Netlify-backed form with inline validation and status messages
     Footer.tsx              Giant wordmark, socials, CV link, back-to-top, colophon
@@ -113,7 +113,7 @@ npm run test:smoke  # Headless-browser smoke suite against dist/ (see below)
 
 ## Testing
 
-`npm run test:smoke` builds nothing itself; run `npm run build` first. It starts `vite preview`, drives a headless Chromium through the site and fails on any console error, failed request, CSP violation or broken behaviour. It covers the security headers and cache policy, full-page screenshots in both themes at three widths, an axe-core pass (serious/critical violations fail), every interaction (nav, deck, theme toggle and light-by-default, tool strip marks, timeline filters, FAQ, contact form, responsive images), the mobile menu's focus trap, reduced motion, the 404 page, the boot sequence and the command palette, status line, cursor and pipeline board, and the personal touches (Amharic greeting and its font, the /now section and calendar leaf, the signature, the time note in two time zones, the `buna`/`selam`/`date` commands). Screenshots land in `test-results/smoke/`.
+`npm run test:smoke` builds nothing itself; run `npm run build` first. It starts `vite preview`, drives a headless Chromium through the site and fails on any console error, failed request, CSP violation or broken behaviour. It covers the security headers and cache policy, full-page screenshots in both themes at three widths, an axe-core pass (serious/critical violations fail), every interaction (nav, deck, theme toggle and light-by-default, tool strip marks, timeline filters, FAQ, contact form, responsive images), the mobile menu's focus trap, reduced motion, the 404 page, the boot sequence and the command palette, status line, cursor and pipeline board, and the personal touches (Amharic greeting and its font, the /now section and calendar leaf, the signature, the working-day ruler and time note in two time zones, the `buna`/`selam`/`date` commands). Screenshots land in `test-results/smoke/`.
 
 It uses `puppeteer-core`, so it needs a browser that is already installed: Edge or Chrome are found automatically, or set `PUPPETEER_EXECUTABLE_PATH`. `--only accessibility,boot` runs a subset; `--base https://…` tests a deployed copy instead of the local build.
 

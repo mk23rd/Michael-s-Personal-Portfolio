@@ -38,12 +38,16 @@ const Hero = () => {
           <StatusLine lines={status} className="whitespace-nowrap" />
         </p>
 
-        <p className="hello rise mt-6" style={vars({ "--d": "30ms" })}>
-          <span lang="am" className="hello-am">
-            ሰላም
+        {/* Set like a dictionary entry: headword, pronunciation, part of speech, sense. */}
+        <p className="hello rise mt-7" style={vars({ "--d": "30ms" })}>
+          <span className="hello-head">
+            <span lang="am" className="hello-word">
+              ሰላም
+            </span>
+            <span className="hello-say">/se·lam/</span>
           </span>
-          <span className="hello-tr">
-            <i>selam</i> — hi, I'm {profile.name.split(" ")[0]}.
+          <span className="hello-def">
+            <i>Amharic</i> hello, and also peace. I'm {profile.name.split(" ")[0]}.
           </span>
         </p>
 

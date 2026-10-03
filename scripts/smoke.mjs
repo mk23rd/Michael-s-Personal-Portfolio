@@ -880,7 +880,9 @@ async function personal(browser) {
   await shot(page, "personal-signature");
 
   const timeNote = await page.$eval("[data-testid=time-note]", (el) => el.textContent).catch(() => "");
-  if (!/^It's \d\d:\d\d in Addis Ababa, \d+ hours? ahead of you\./.test(timeNote)) fail(`time note (London): "${timeNote}"`);
+  if (!/^It's \d\d:\d\d in Addis Ababa, 2 hours ahead of you\. Our working days overlap by 7 hours: your 09:00–16:00 is my 11:00–18:00\./.test(timeNote)) fail(`time note (London): "${timeNote}"`);
+  const bands = await page.$$eval("figure.tz .tz-band-me, figure.tz .tz-band-you, figure.tz .tz-shared", (els) => els.map((el) => el.getBoundingClientRect().width));
+  if (bands.length !== 3 || bands.some((w) => w < 20)) fail(`time ruler bands: ${JSON.stringify(bands)}`);
 
   const colophon = await page.$eval("footer .colophon", (el) => el.textContent).catch(() => "");
   if (!/ቡና/.test(colophon) || !/E\.C\. there\.$/.test(colophon)) fail(`colophon: "${colophon}"`);
@@ -908,7 +910,7 @@ async function personal(browser) {
   await local.emulateTimezone("Africa/Addis_Ababa");
   await openHome(local);
   const neighbour = await local.$eval("[data-testid=time-note]", (el) => el.textContent).catch(() => "");
-  if (!/same as where you are\. ሰላም, neighbour\./.test(neighbour)) fail(`time note (Addis): "${neighbour}"`);
+  if (!/the same as you\. You're on Addis time too, so our working days line up exactly\. ሰላም, neighbour\./.test(neighbour)) fail(`time note (Addis): "${neighbour}"`);
   await local.close();
   note("personal touches ok");
 }
