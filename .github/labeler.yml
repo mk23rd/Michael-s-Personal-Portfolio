@@ -1,0 +1,22 @@
+# Applied to pull requests by .github/workflows/labeler.yml (actions/labeler v5 syntax).
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: ["**/*.md", "docs/**"]
+
+github_actions:
+  - changed-files:
+      - any-glob-to-any-file: [".github/**", "lighthouserc.json"]
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file: ["package.json", "package-lock.json"]
+
+javascript:
+  - changed-files:
+      - any-glob-to-any-file: ["src/**/*.{ts,tsx,js,jsx}", "scripts/**", "*.config.{ts,js,mjs}"]
+
+enhancement:
+  - head-branch: ["^feat", "^feature"]
+
+bug:
+  - head-branch: ["^fix", "^bug"]
