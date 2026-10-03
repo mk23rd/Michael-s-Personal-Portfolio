@@ -24,6 +24,28 @@
 }
 
 /*
+  Ge'ez script (Amharic) from Noto Sans Ethiopic, subset by scripts/ethiopic.py to only the characters the
+  site uses. Registered under both family names, with the same descriptors as the latin faces (browsers only
+  combine unicode-range faces whose other descriptors match), so Amharic text picks it up wherever it appears.
+*/
+@font-face {
+  font-family: "Bricolage Grotesque";
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url("./assets/fonts/noto-sans-ethiopic-subset.woff2") format("woff2");
+  unicode-range: U+1200-139F, U+2D80-2DDF, U+AB00-AB2F;
+}
+
+@font-face {
+  font-family: "Instrument Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url("./assets/fonts/noto-sans-ethiopic-subset.woff2") format("woff2");
+  unicode-range: U+1200-139F, U+2D80-2DDF, U+AB00-AB2F;
+}
+/*
   Fallback faces used while the web fonts load. Local Arial (Windows, macOS, iOS) and Roboto (Android) are
   scaled to the real fonts' metrics so text wraps in the same places and nothing jumps at swap time.
   Values follow the capsize method: size-adjust from average glyph width, ascent/descent from the real face.
