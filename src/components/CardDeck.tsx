@@ -84,18 +84,22 @@ const CardDeck = () => {
                 })}
                 data-cursor="View"
               >
-                <div className={cn("flex h-full flex-col p-4 sm:p-5", i > 0 && "items-end text-right")}>
-                  <p className="text-[0.7rem] opacity-80 sm:text-xs">{project.kind}</p>
-                  <p
-                    className="display mt-1 text-lg leading-[1.05] sm:text-xl"
-                    style={i !== 0 ? { maxWidth: "calc(var(--fan-x) - 1.1rem)" } : undefined}
-                  >
-                    {project.title}
-                  </p>
-                  {/* Part of the link's name for assistive tech, so the visible text still matches it. */}
-                  <span className="sr-only">: {project.summary}</span>
+                {/* The hover pop lives on this inner body; the link itself never moves, so the
+                    pointer cannot land outside a card that is straightening up beneath it. */}
+                <div className="deck-card-body">
+                  <div className={cn("flex h-full flex-col p-4 sm:p-5", i > 0 && "items-end text-right")}>
+                    <p className="text-[0.7rem] opacity-80 sm:text-xs">{project.kind}</p>
+                    <p
+                      className="display mt-1 text-lg leading-[1.05] sm:text-xl"
+                      style={i !== 0 ? { maxWidth: "calc(var(--fan-x) - 1.1rem)" } : undefined}
+                    >
+                      {project.title}
+                    </p>
+                    {/* Part of the link's name for assistive tech, so the visible text still matches it. */}
+                    <span className="sr-only">: {project.summary}</span>
+                  </div>
+                  <ProjectArtwork project={project} variant="deck" loading="eager" />
                 </div>
-                <ProjectArtwork project={project} variant="deck" loading="eager" />
               </a>
             </li>
           );
